@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SingleExperience.Domain;
+using SingleExperience.Repository;
+using SingleExperience.Services.ProductServices;
 
 namespace SingleExperience.WebAPI
 {
@@ -22,8 +24,10 @@ namespace SingleExperience.WebAPI
         {
             services.AddDbContext<Context>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(Configuration.GetConnectionString("Defaultconnection"));
             });
+
+            services.AddScoped<ProductService>();
 
             services.AddControllers();
         }

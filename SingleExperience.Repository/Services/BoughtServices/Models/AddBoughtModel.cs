@@ -1,5 +1,5 @@
 ﻿using SingleExperience.Domain.Enums;
-using SingleExperience.Services.CartServices.Models;
+using SingleExperience.Repository.Services.CartServices.Models;
 using System.Collections.Generic;
 
 namespace SingleExperience.Repository.Services.BoughtServices.Models
