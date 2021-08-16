@@ -1,4 +1,5 @@
-﻿using SingleExperience.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+using SingleExperience.Domain;
 using SingleExperience.Domain.Entities;
 using SingleExperience.Domain.Enums;
 using SingleExperience.Repository.Services.BoughtServices.Models;
@@ -18,9 +19,9 @@ namespace SingleExperience.Services.ProductServices
             this.context = context;
         }
 
-        public List<ListProductsModel> ListAllProducts()
+        public async Task<List<ListProductsModel>> ListAllProducts()
         {
-            return context.Product
+            return await context.Product
                 .Select(i => new ListProductsModel()
                 {
                     ProductId = i.ProductId,
@@ -31,12 +32,12 @@ namespace SingleExperience.Services.ProductServices
                     Ranking = i.Ranking,
                     Available = i.Available
                 })
-                .ToList();
+                .ToListAsync();
         }
 
-        public List<BestSellingModel> ListProducts()
+        public async Task<List<BestSellingModel>> ListProducts()
         {
-            return context.Product
+            return await context.Product
                 .Where(p => p.Available == true)
                 .OrderByDescending(p => p.Ranking)
                 .Take(5)
@@ -48,12 +49,12 @@ namespace SingleExperience.Services.ProductServices
                     Available = i.Available,
                     Ranking = i.Ranking
                 })
-                .ToList();
+                .ToListAsync();
         }
 
-        public List<CategoryModel> ListProductCategory(CategoryEnum categoryId)
+        public async Task<List<CategoryModel>> ListProductCategory(CategoryEnum categoryId)
         {
-            return context.Product
+            return await context.Product
                 .Where(p => p.Available == true && p.CategoryEnum == categoryId)
                 .Select(i => new CategoryModel()
                 {
@@ -63,12 +64,12 @@ namespace SingleExperience.Services.ProductServices
                     CategoryId = i.CategoryEnum,
                     Available = i.Available
                 })
-                .ToList();
+                .ToListAsync();
         }
 
-        public ProductSelectedModel SelectedProduct(int productId)
+        public async Task<ProductSelectedModel> SelectedProduct(int productId)
         {
-            return context.Product
+            return await context.Product
              .Where(p => p.Available == true && p.ProductId == productId)
              .Select(i => new ProductSelectedModel()
              {
@@ -80,15 +81,10 @@ namespace SingleExperience.Services.ProductServices
                  Price = i.Price,
                  Rating = i.Rating
              })
-             .FirstOrDefault();
+             .FirstOrDefaultAsync();
         }
 
-        public bool HasProduct(int code)
-        {
-            return context.Product.Any(i => i.ProductId == code);
-        }
-
-        public bool Confirm(List<ProductBoughtModel> products)
+        public async Task<bool> Confirm(List<ProductBoughtModel> products)
         {
             products.ForEach(j =>
             {
@@ -100,26 +96,37 @@ namespace SingleExperience.Services.ProductServices
                 product.Ranking += j.Amount;
 
                 context.Product.Update(product);
-                context.SaveChanges();
             });
+
+            await context.SaveChangesAsync();
 
             return true;
         }
 
-        public bool EditAvailable(int productId, bool available)
+        public async Task<bool> EditAvailable(int productId, bool available)
         {
-            var product = context.Product
-                .FirstOrDefault(i => i.ProductId == productId && i.Available != available);
+            var product = await context.Product
+                .FirstOrDefaultAsync(i => i.ProductId == productId && i.Available != available);
 
             product.Available = available;
 
             context.Product.Update(product);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             return true;
         }
 
-        public void Add(AddNewProductModel newProduct)
+        public async Task Rating(int productId, decimal rating)
+        {
+            var product = context.Product.FirstOrDefault(i => i.ProductId == productId);
+
+            product.Rating = (rating + product.Rating) / product.Ranking;
+
+            context.Product.Update(product);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task Add(AddNewProductModel newProduct)
         {
             var model = new Product()
             {
@@ -133,18 +140,13 @@ namespace SingleExperience.Services.ProductServices
                 Rating = newProduct.Rating
             };
 
-            context.Product.Add(model);
-            context.SaveChanges();
+            await context.Product.AddAsync(model);
+            await context.SaveChangesAsync();
         }
 
-        public void Rating(int productId, decimal rating)
+        public async Task<bool> HasProduct(int productId)
         {
-            var product = context.Product.FirstOrDefault(i => i.ProductId == productId);
-
-            product.Rating += rating;
-
-            context.Product.Update(product);
-            context.SaveChanges();
+            return await context.Product.AnyAsync(i => i.ProductId == productId);
         }
     }
 }

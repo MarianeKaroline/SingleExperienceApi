@@ -1,12 +1,16 @@
+using SingleExperience.Services.ProductServices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SingleExperience.Domain;
-using SingleExperience.Repository;
-using SingleExperience.Services.ProductServices;
+using SingleExperience.Repository.Services.BoughtServices;
+using SingleExperience.Services.CartServices;
+using SingleExperience.Services.ClientServices;
+using SingleExperience.Services.EmployeeServices;
+using SingleExperience.Services.UserServices;
 
 namespace SingleExperience.WebAPI
 {
@@ -28,6 +32,11 @@ namespace SingleExperience.WebAPI
             });
 
             services.AddScoped<ProductService>();
+            services.AddScoped<BoughtService>();
+            services.AddScoped<CartService>();
+            services.AddScoped<ClientService>();
+            services.AddScoped<EmployeeService>();
+            services.AddScoped<UserService>();
 
             services.AddControllers();
         }

@@ -76,7 +76,7 @@ namespace SingleExperience.Services.CartServices
                 else
                 {
                     total.TotalAmount = itens.Sum(item => item.Amount);
-                    total.TotalPrice = itens.Sum(item => productService.ListAllProducts().FirstOrDefault(i => i.ProductId == item.ProductId).Price * item.Amount);
+                    total.TotalPrice = itens.Sum(item => context.Product.ToList().FirstOrDefault(i => i.ProductId == item.ProductId).Price * item.Amount);
                 }
             }
 
@@ -260,7 +260,7 @@ namespace SingleExperience.Services.CartServices
         public List<ProductCartModel> ShowProducts(StatusProductEnum status)
         {
             var prod = new List<ProductCartModel>();
-            var product = productService.ListAllProducts();
+            var product = context.Product.ToList();
 
             if (Session.Length == 11)
             {
@@ -274,7 +274,7 @@ namespace SingleExperience.Services.CartServices
                         {
                             ProductId = j.ProductId,
                             Name = product.FirstOrDefault(i => i.ProductId == j.ProductId).Name,
-                            CategoryId = product.FirstOrDefault(i => i.ProductId == j.ProductId).CategoryId,
+                            CategoryId = product.FirstOrDefault(i => i.ProductId == j.ProductId).CategoryEnum,
                             StatusId = j.StatusProductEnum,
                             Amount = j.Amount,
                             Price = product.FirstOrDefault(i => i.ProductId == j.ProductId).Price
@@ -295,7 +295,7 @@ namespace SingleExperience.Services.CartServices
                         {
                             ProductId = j.ProductId,
                             Name = product.FirstOrDefault(i => i.ProductId == j.ProductId).Name,
-                            CategoryId = product.FirstOrDefault(i => i.ProductId == j.ProductId).CategoryId,
+                            CategoryId = product.FirstOrDefault(i => i.ProductId == j.ProductId).CategoryEnum,
                             StatusId = j.StatusProductEnum,
                             Amount = j.Amount,
                             Price = product.FirstOrDefault(i => i.ProductId == j.ProductId).Price

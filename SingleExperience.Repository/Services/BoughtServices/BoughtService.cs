@@ -247,9 +247,9 @@ namespace SingleExperience.Repository.Services.BoughtServices
                         .Select(j => new ProductBoughtModel()
                         {
                             ProductId = j.ProductId,
-                            ProductName = productService.ListAllProducts().FirstOrDefault(i => i.ProductId == j.ProductId).Name,
+                            ProductName = context.Product.ToList().FirstOrDefault(i => i.ProductId == j.ProductId).Name,
                             Amount = j.Amount,
-                            Price = productService.ListAllProducts().FirstOrDefault(i => i.ProductId == j.ProductId).Price,
+                            Price = context.Product.ToList().FirstOrDefault(i => i.ProductId == j.ProductId).Price,
                             BoughtId = j.BoughtId
                         })
                         .ToList();
@@ -304,9 +304,9 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     .Select(j => new ProductBoughtModel()
                     {
                         ProductId = j.ProductId,
-                        ProductName = productService.ListAllProducts().FirstOrDefault(i => i.ProductId == j.ProductId).Name,
+                        ProductName = context.Product.ToList().FirstOrDefault(i => i.ProductId == j.ProductId).Name,
                         Amount = j.Amount,
-                        Price = productService.ListAllProducts().FirstOrDefault(i => i.ProductId == j.ProductId).Price,
+                        Price = context.Product.ToList().FirstOrDefault(i => i.ProductId == j.ProductId).Price,
                         BoughtId = j.BoughtId
                     })
                     .ToList();

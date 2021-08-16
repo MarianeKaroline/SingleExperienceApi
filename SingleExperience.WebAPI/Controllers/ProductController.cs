@@ -1,91 +1,89 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SingleExperience.Domain.Enums;
+using SingleExperience.Repository.Services.BoughtServices.Models;
 using SingleExperience.Repository.Services.ProductServices.Models;
 using SingleExperience.Services.ProductServices;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace SingleExperience.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("singleexperience")]
     [ApiController]
     public class ProductController : ControllerBase
     {
-        protected readonly ProductService repository;
+        protected readonly ProductService product;
 
-        public ProductController(ProductService repository)
+        public ProductController(ProductService product)
         {
-            this.repository = repository;
+            this.product = product;
         }
 
-        // GET: api/<ProductController>
-        [HttpGet]
-        public ActionResult Get()
+        // GET: singleexperience/product/home
+        [HttpGet("product/home")]
+        public async Task<List<ListProductsModel>> ListAllProducts()
         {
-            try
-            {
-                var bestSelling = repository.ListProducts();
+            return await product.ListAllProducts();
+        }
 
-                return Ok(bestSelling);
-            }
-            catch (System.Exception e)
-            {
-                return BadRequest($"Erro: {e}");
-            }
+        // GET: singleexperience/home
+        [HttpGet("home")]
+        public async Task<List<BestSellingModel>> ListProduct()
+        {
+            return await product.ListProducts();
+        }
+
+        // GET singleexperience/category/computer
+        [HttpGet("category/{categoryId}")]
+        public async Task<List<CategoryModel>> ListProductCategory(CategoryEnum categoryId)
+        {
+            return await product.ListProductCategory(categoryId);
+        }
+
+        // GET singleexperience/5
+        [HttpGet("product-{id}")]
+        public async Task<ProductSelectedModel> SelectedProduct(int id)
+        {
+            return await product.SelectedProduct(id);
         }
 
         // GET api/<ProductController>/5
-        [HttpGet("{id}")]
-        public ActionResult Get(int id)
+        [HttpGet("{productId}")]
+        public async Task<bool> HasProduct(int productId)
         {
-            try
-            {
-                var selectedProduct = repository.SelectedProduct(id);
-
-                return Ok(selectedProduct);
-            }
-            catch (System.Exception e)
-            {
-                return BadRequest($"Erro: {e}");
-            }
+            return await product.HasProduct(productId);
         }
 
-        // POST api/<ProductController>
-        [HttpPost]
-        public ActionResult Post(AddNewProductModel product)
+        // POST singleexperience/newproduct
+        [HttpPost("newproduct")]
+        public async Task<ActionResult> Add([FromBody] AddNewProductModel addProduct)
         {
-            try
-            {
-                repository.Add(product);
+            await product.Add(addProduct);
 
-                return Ok("WORK!!!");
-            }
-            catch (System.Exception e)
-            {
-                return BadRequest($"Erro: {e}");
-            }
+            return Ok("WORK!!!");
+        }
+
+        // PUT singleexperience
+        [HttpPut]
+        public async Task<bool> Confirm([FromBody] List<ProductBoughtModel> products)
+        {
+            return await product.Confirm(products);
         }
 
         // PUT api/<ProductController>/5
-        [HttpPut("{id}/{available}")]
-        public ActionResult Put(int productId, bool available)
+        [HttpPut("{productId:int}/{available:bool}")]
+        public async Task<bool> EditAvailable(int productId, bool available)
         {
-            try
-            {
-                var confirm = repository.EditAvailable(productId, available);
-
-                return Ok(confirm);
-            }
-            catch (System.Exception e)
-            {
-                return BadRequest($"Erro: {e}");
-            }
-
+            return await product.EditAvailable(productId, available);
         }
 
-        // DELETE api/<ProductController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        // PUT api/<ProductController>/5
+        [HttpPut("{productId:int}/{rating:decimal}")]
+        public async Task Rating(int productId, decimal rating)
         {
+            await product.Rating(productId, rating);
         }
     }
 }
