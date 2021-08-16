@@ -16,13 +16,10 @@ namespace SingleExperience.WebAPI.Controllers
     {
         protected readonly ProductService product;
 
-        public ProductController(ProductService product)
-        {
-            this.product = product;
-        }
+        public ProductController(ProductService product) => this.product = product;
 
-        // GET: singleexperience/product/home
-        [HttpGet("product/home")]
+        // GET: singleexperience/manager/products
+        [HttpGet("manager/products")]
         public async Task<List<ListProductsModel>> ListAllProducts()
         {
             return await product.ListAllProducts();
@@ -42,14 +39,14 @@ namespace SingleExperience.WebAPI.Controllers
             return await product.ListProductCategory(categoryId);
         }
 
-        // GET singleexperience/5
+        // GET singleexperience/product-5
         [HttpGet("product-{id}")]
         public async Task<ProductSelectedModel> SelectedProduct(int id)
         {
             return await product.SelectedProduct(id);
         }
 
-        // GET api/<ProductController>/5
+        // GET api/singleexperience/5
         [HttpGet("{productId}")]
         public async Task<bool> HasProduct(int productId)
         {
@@ -72,14 +69,14 @@ namespace SingleExperience.WebAPI.Controllers
             return await product.Confirm(products);
         }
 
-        // PUT api/<ProductController>/5
+        // PUT singleexperience/5/false
         [HttpPut("{productId:int}/{available:bool}")]
         public async Task<bool> EditAvailable(int productId, bool available)
         {
             return await product.EditAvailable(productId, available);
         }
 
-        // PUT api/<ProductController>/5
+        // PUT singleexperience/5/4.5
         [HttpPut("{productId:int}/{rating:decimal}")]
         public async Task Rating(int productId, decimal rating)
         {

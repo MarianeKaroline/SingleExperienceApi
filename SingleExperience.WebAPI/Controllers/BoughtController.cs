@@ -1,4 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SingleExperience.Domain.Enums;
+using SingleExperience.Repository.Services.BoughtServices;
+using SingleExperience.Repository.Services.BoughtServices.Models;
+using SingleExperience.Repository.Services.CartServices.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,36 +16,58 @@ namespace SingleExperience.WebAPI.Controllers
     [ApiController]
     public class BoughtController : ControllerBase
     {
+        protected readonly BoughtService bought;
+
+        public BoughtController(BoughtService bought) => this.bought = bought;
+
+
         // GET: api/<BoughtController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<PreviewBoughtModel> Preview([FromBody] BuyModel boughtModel, int addressId)
         {
-            return new string[] { "value1", "value2" };
+            return await bought.PreviewBoughts(boughtModel, addressId);
         }
 
-        // GET api/<BoughtController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        // GET: api/<BoughtController>
+        [HttpGet]
+        public async Task<List<BoughtModel>> Show()
         {
-            return "value";
+            return await bought.Show();
+        }
+
+        // GET: api/<BoughtController>
+        [HttpGet]
+        public async Task<List<BoughtModel>> ListAll()
+        {
+            return await bought.ListAll();
+        }
+
+        // GET: api/<BoughtController>
+        [HttpGet]
+        public async Task<List<BoughtModel>> Status(StatusBoughtEnum status)
+        {
+            return await bought.BoughtPendent(status);
+        }
+
+        // GET: api/<BoughtController>
+        [HttpGet]
+        public async Task<bool> Exist(int boughtId)
+        {
+            return await bought.Exist(boughtId);
         }
 
         // POST api/<BoughtController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task Add([FromBody] AddBoughtModel addBought)
         {
+            await bought.Add(addBought);
         }
 
         // PUT api/<BoughtController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task UdateStatus(int boughtId, StatusBoughtEnum status)
         {
-        }
-
-        // DELETE api/<BoughtController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            await bought.UpdateStatus(boughtId, status);
         }
     }
 }

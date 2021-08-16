@@ -1,42 +1,58 @@
-﻿using SingleExperience.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+using SingleExperience.Domain;
 using SingleExperience.Domain.Entities;
 using SingleExperience.Repository.Services.ClientServices.Models;
 using SingleExperience.Repository.Services.EmployeeServices.Models;
 using SingleExperience.Services.UserServices;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SingleExperience.Services.EmployeeServices
 {
     public class EmployeeService : UserService
     {
-        protected readonly Context context;
+        protected readonly Context contexts;
 
         public EmployeeService(Context context) : base(context)
         {
-            this.context = context;
+            contexts = context;
         }
 
 
-        public AccessEmployee Access(string cpf)
+        public async Task<AccessEmployeeModel> GetAccess()
         {
-            return context.AccessEmployee
-                .Select(i => new AccessEmployee
+            return await contexts.AccessEmployee
+                .Where(i => i.Cpf == SessionId)
+                .Select(i => new AccessEmployeeModel
                 {
-                    Cpf = i.Cpf,
                     AccessInventory = i.AccessInventory,
                     AccessRegister = i.AccessRegister
                 })
-                .FirstOrDefault(i => i.Cpf == cpf);
+                .FirstOrDefaultAsync();
         }
 
+        public async Task<List<RegisteredModel>> List()
+        {
+            return await contexts.Enjoyer
+                     .Where(i => i.Employee == true)
+                     .Select(i => new RegisteredModel()
+                     {
+                         Cpf = i.Cpf,
+                         FullName = i.Name,
+                         Email = i.Email,
+                         AccessInventory = contexts.AccessEmployee.FirstOrDefault(j => j.Cpf == i.Cpf).AccessInventory,
+                         RegisterEmployee = contexts.AccessEmployee.FirstOrDefault(j => j.Cpf == i.Cpf).AccessRegister
+                     })
+                     .ToListAsync();
+        }
 
-        public bool Register(SignUpModel employee)
+        public async Task<bool> SingUp(SignUpModel employee)
         {
             var existEmployee = GetUser();
             if (existEmployee == null)
             {
-                SignUp(employee);
+                await SignUp(employee);
 
                 var access = new AccessEmployee()
                 {
@@ -45,26 +61,11 @@ namespace SingleExperience.Services.EmployeeServices
                     AccessRegister = employee.AccessRegister
                 };
 
-                context.AccessEmployee.Add(access);
-                context.SaveChanges();
+                await contexts.AccessEmployee.AddAsync(access);
+                await contexts.SaveChangesAsync();
             }
 
             return existEmployee == null;
-        }             
-
-        public List<RegisteredModel> List()
-        {
-            return context.Enjoyer
-                     .Where(i => i.Employee == true)
-                     .Select(i => new RegisteredModel()
-                     {
-                         Cpf = i.Cpf,
-                         FullName = i.Name,
-                         Email = i.Email,
-                         AccessInventory = context.AccessEmployee.FirstOrDefault(j => j.Cpf == i.Cpf).AccessInventory,
-                         RegisterEmployee = context.AccessEmployee.FirstOrDefault(j => j.Cpf == i.Cpf).AccessRegister
-                     })
-                     .ToList();
-        }
+        }                   
     }
 }

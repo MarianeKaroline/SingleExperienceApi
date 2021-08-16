@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SingleExperience.Domain.Entities;
+using System.Threading.Tasks;
 
 namespace SingleExperience.Domain
 {
@@ -7,6 +8,12 @@ namespace SingleExperience.Domain
     {
         public Context(DbContextOptions<Context> options) : base(options)
         {
+        }
+
+
+        public async Task<Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await this.Database.BeginTransactionAsync();
         }
 
         public DbSet<User> Enjoyer { get; set; }

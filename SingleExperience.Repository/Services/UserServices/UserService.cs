@@ -1,15 +1,16 @@
 ﻿using SingleExperience.Domain;
 using SingleExperience.Domain.Entities;
-using SingleExperience.Repository.Services.CartServices.Models;
+using SingleExperience.Repository.Common.Domain;
 using SingleExperience.Repository.Services.ClientServices.Models;
 using SingleExperience.Repository.Services.UserSevices.Models;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace SingleExperience.Services.UserServices
 {
-    public class UserService : SessionModel
+    public class UserService : Session
     {
         protected readonly Context context;
 
@@ -18,9 +19,9 @@ namespace SingleExperience.Services.UserServices
             this.context = context;
         }
 
-        public string GetIP()
+        public async Task<string> GetIP()
         {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
+            var host = await Dns.GetHostEntryAsync(Dns.GetHostName());
             string session = "";
 
             foreach (var ip in host.AddressList)
@@ -30,35 +31,38 @@ namespace SingleExperience.Services.UserServices
                     session = ip.ToString().Replace(".", "");
                 }
             }
+
+            SessionId = session;
             return session;
         }
 
-        public UserModel SignIn(SignInModel signIn)
+        public async Task<UserModel> SignIn(SignInModel signIn)
         {
             var client = GetUserEmail(signIn.Email);
-            UserModel session = null;
+            UserModel user = null;
 
             if (client != null)
             {
                 if (client.Password == signIn.Password)
-                {
-                    session = client;
-                }
+                    user = client;
             }
 
-            return session;
+            if (user != null)
+                SessionId = user.Cpf;
+
+            return user;
         }
 
         //Sair
-        public string SignOut()
+        public async Task<string> SignOut()
         {
-            return GetIP();
+            return await GetIP();
         }
 
         public User GetUser()
         {
             return context.Enjoyer
-                .FirstOrDefault(i => i.Cpf == Session);
+                .FirstOrDefault(i => i.Cpf == SessionId);
         }
 
         public UserModel GetUserEmail(string email)
@@ -75,21 +79,21 @@ namespace SingleExperience.Services.UserServices
                 .FirstOrDefault();
         }
 
-        public void SignUp(SignUpModel enjoyer)
+        public async Task SignUp(SignUpModel user)
         {
-            var user = new User()
+            var registerUser = new User()
             {
-                Cpf = enjoyer.Cpf,
-                Name = enjoyer.FullName,
-                Phone = enjoyer.Phone,
-                Email = enjoyer.Email,
-                BirthDate = enjoyer.BirthDate,
-                Password = enjoyer.Password,
-                Employee = enjoyer.Employee
+                Cpf = user.Cpf,
+                Name = user.FullName,
+                Phone = user.Phone,
+                Email = user.Email,
+                BirthDate = user.BirthDate,
+                Password = user.Password,
+                Employee = user.Employee
             };
 
-            context.Enjoyer.Add(user);
-            context.SaveChanges();
+            await context.Enjoyer.AddAsync(registerUser);
+            await context.SaveChangesAsync();
         }
     }
 }

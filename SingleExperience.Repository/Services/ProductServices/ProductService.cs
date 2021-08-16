@@ -66,7 +66,7 @@ namespace SingleExperience.Services.ProductServices
                 })
                 .ToListAsync();
         }
-
+        
         public async Task<ProductSelectedModel> SelectedProduct(int productId)
         {
             return await context.Product

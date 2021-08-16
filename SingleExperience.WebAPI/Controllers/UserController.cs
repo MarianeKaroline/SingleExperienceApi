@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SingleExperience.Repository.Services.ClientServices.Models;
+using SingleExperience.Repository.Services.UserSevices.Models;
+using SingleExperience.Services.UserServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,40 +11,32 @@ using System.Threading.Tasks;
 
 namespace SingleExperience.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("singleexperience/user")]
     [ApiController]
     public class UserController : ControllerBase
     {
-        // GET: api/<ValuesController>
+        protected readonly UserService user;
+
+        public UserController(UserService user) => this.user = user;
+
+
+        // GET: singleexperience/user
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<string> GetIP()
         {
-            return new string[] { "value1", "value2" };
+            return await user.GetIP();
+        }        
+
+        [HttpGet("signin")]
+        public async Task<UserModel> SignIn(SignInModel signIn)
+        {
+            return await user.SignIn(signIn);
         }
 
-        // GET api/<ValuesController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("signout")]
+        public async Task<string> SignOut()
         {
-            return "value";
-        }
-
-        // POST api/<ValuesController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<ValuesController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<ValuesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return await user.SignOut();
         }
     }
 }

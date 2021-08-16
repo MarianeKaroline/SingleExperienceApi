@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SingleExperience.Domain.Entities;
+using SingleExperience.Repository.Services.CartServices.Models;
+using SingleExperience.Services.CartServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,40 +11,54 @@ using System.Threading.Tasks;
 
 namespace SingleExperience.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("singleexperience/cart")]
     [ApiController]
     public class CartController : ControllerBase
     {
-        // GET: api/<CartController>
+        protected readonly CartService cart;
+
+        public CartController(CartService cart) => this.cart = cart;
+
+        // GET singleexperience/cart/
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<List<ProductCartModel>> ShowProducts()
         {
-            return new string[] { "value1", "value2" };
+            return await cart.ShowProducts();
         }
 
-        // GET api/<CartController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        // GET singleexperience/cart/total
+        [HttpGet("total")]
+        public async Task<TotalCartModel> Total()
         {
-            return "value";
+            return await cart.Total();
         }
 
-        // POST api/<CartController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        // GET singleexperience/cart/edit-status
+        [HttpGet("edit-status")]
+        public async Task<bool> EditStatus([FromBody] List<BuyProductModel> products)
         {
+            return await cart.CallEditStatus(products);
         }
 
-        // PUT api/<CartController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        // POST singleexperience/addcart
+        [HttpPost("addcart")]
+        public async Task Add([FromBody] CartModel cartModel)
         {
+            await cart.AddProduct(cartModel);
         }
 
-        // DELETE api/<CartController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        // POST singleexperience/addcart
+        [HttpPost("passcart")]
+        public async Task Pass()
         {
+            await cart.PassProducts();
+        }
+
+        // PUT singleexperience/removeProduct/5
+        [HttpPut("removeproduct/{productId}")]
+        public async Task RemoveItem(int productId)
+        {
+            await cart.RemoveItem(productId);
         }
     }
 }

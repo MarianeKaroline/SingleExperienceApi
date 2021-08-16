@@ -2,8 +2,8 @@
 {
     public enum StatusProductEnum
     {
-        Inativo = 1,
-        Ativo = 2,
-        Comprado = 3
+        Deleted = 1,
+        Active = 2,
+        Bought = 3
     }
 }

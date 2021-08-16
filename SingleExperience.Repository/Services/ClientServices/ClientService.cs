@@ -1,25 +1,27 @@
-﻿using SingleExperience.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+using SingleExperience.Domain;
 using SingleExperience.Domain.Entities;
 using SingleExperience.Repository.Services.ClientServices.Models;
 using SingleExperience.Services.UserServices;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SingleExperience.Services.ClientServices
 {
     public class ClientService : UserService
     {
-        protected readonly Context context;
+        protected readonly Context contexts;
 
         public ClientService(Context context) : base(context)
         {
-            this.context = context;
+            contexts = context;
         }
 
-        //Address
-        public List<Address> ListAddress(string cpf)
+       
+        public List<Address> ListAddress()
         {
-            return context.Address
+            return contexts.Address
                 .Select(i => new Address
                 {
                     AddressId = i.AddressId,
@@ -30,15 +32,15 @@ namespace SingleExperience.Services.ClientServices
                     State = i.State,
                     Cpf = i.Cpf
                 })
-                .Where(i => i.Cpf == cpf)
+                .Where(i => i.Cpf == SessionId)
                 .ToList();
         }
 
-        //Card
-        public List<CreditCard> ListCard(string cpf)
+        
+        public List<CreditCard> ListCard()
         {
-            return context.CreditCard
-                    .Where(i => i.Cpf == cpf)
+            return contexts.CreditCard
+                    .Where(i => i.Cpf == SessionId)
                     .Select(i => new CreditCard
                     {
                         Number = i.Number,
@@ -50,23 +52,21 @@ namespace SingleExperience.Services.ClientServices
                     .ToList();
         }
 
-
-        /* Cadastro */
-        //Client
-        public bool SignUpClient(SignUpModel client)
+        
+        public async Task<bool> SignUpClient(SignUpModel client)
         {
             var existClient = GetUser();
 
             if (existClient == null)
             {
-                SignUp(client);
+                await SignUp(client);
             }
 
             return existClient == null;
         }
 
-        //Address
-        public int AddAddress(AddressModel addressModel)
+        
+        public async Task<int> AddAddress(AddressModel addressModel)
         {
             var address = new Address()
             {
@@ -78,21 +78,16 @@ namespace SingleExperience.Services.ClientServices
                 Cpf = addressModel.Cpf
             };
 
-            context.Address.Add(address);
-            context.SaveChanges();
+            await contexts.Address.AddAsync(address);
+            await contexts.SaveChangesAsync();
 
-            return context.Address.FirstOrDefault().AddressId;
+            return contexts.Address.FirstOrDefault().AddressId;
         }
 
-        public int IdInserted(string cpf)
+       
+        public async Task AddCard(CardModel card)
         {
-            return ListCard(cpf).OrderByDescending(j => j.CreditCardId).FirstOrDefault().CreditCardId;
-        }
-
-        //Card
-        public void AddCard(string cpf, CardModel card)
-        {
-            var existCard = ListCard(cpf).FirstOrDefault(i => i.Number == card.CardNumber);
+            var existCard = ListCard().FirstOrDefault(i => i.Number == card.CardNumber);
             var lines = new List<string>();
 
             if (existCard == null)
@@ -103,55 +98,59 @@ namespace SingleExperience.Services.ClientServices
                     Name = card.Name,
                     ShelfLife = card.ShelfLife,
                     Cvv = card.CVV,
-                    Cpf = cpf
+                    Cpf = SessionId
                 };
 
-                context.CreditCard.Add(creditCard);
-                context.SaveChanges();
+                await contexts.CreditCard.AddAsync(creditCard);
+                await contexts.SaveChangesAsync();
             }
         }
 
+        public int IdInserted()
+        {
+            return ListCard().OrderByDescending(j => j.CreditCardId).FirstOrDefault().CreditCardId;
+        }
 
-        //Puxa o nome do cliente
+        
         public string ClientName(string cpf)
         {
             return GetUser().Name;
         }
 
-        //Verifica se o cliente possui cartão de crédito
-        public bool HasCard(string cpf)
+        
+        public async Task<bool> HasCard()
         {
-            return ListCard(cpf).Any();
+            return await contexts.CreditCard.AnyAsync(i => i.Cpf == SessionId);
         }
 
-
-        //Verifica se cliente já cadastrou algum endereço
-        public bool HasAddress(string cpf)
+       
+        public async Task<bool> HasAddress()
         {
-            return context.Address.Any(i => i.Cpf == cpf);
+            return await contexts.Address.AnyAsync(i => i.Cpf == SessionId);
         }
 
-        //Traz todos os cartões cadastrados do usuário
-        public List<ShowCardModel> ShowCards(string cpf)
+        
+        public async Task<List<ShowCardModel>> ShowCards()
         {
-            return ListCard(cpf)
+            return await context.CreditCard
+                .Where(i => i.Cpf == SessionId)
                 .Select(i => new ShowCardModel
                 {
                     CardNumber = i.Number.ToString(),
                     Name = i.Name,
                     ShelfLife = i.ShelfLife
                 })
-                .ToList();
+                .ToListAsync();
         }
 
-
-        //Traz todos os endereços do usuário
-        public List<ShowAddressModel> ShowAddress(string cpf)
+        
+        public async Task<List<ShowAddressModel>> ShowAddress()
         {
             var client = GetUser();
-            var listAddress = ListAddress(cpf);
+            var listAddress = ListAddress();
 
-            return listAddress
+            return await context.Address
+                .Where(i => i.Cpf == SessionId)
                 .Select(i => new ShowAddressModel
                 {
                     ClientName = client.Name,
@@ -163,7 +162,7 @@ namespace SingleExperience.Services.ClientServices
                     City = i.City,
                     State = i.State
                 })
-                .ToList();
+                .ToListAsync();
         }
     }
 }

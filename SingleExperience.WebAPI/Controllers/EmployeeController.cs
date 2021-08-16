@@ -1,4 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SingleExperience.Domain.Entities;
+using SingleExperience.Repository.Services.ClientServices.Models;
+using SingleExperience.Repository.Services.EmployeeServices.Models;
+using SingleExperience.Services.EmployeeServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,40 +12,34 @@ using System.Threading.Tasks;
 
 namespace SingleExperience.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("singleexperience/employee")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
+        protected readonly EmployeeService employee;
+
+        public EmployeeController(EmployeeService employee) => this.employee = employee;
+
+
         // GET: api/<EmployeeController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet("acess")]
+        public async Task<AccessEmployeeModel> GetAccess()
         {
-            return new string[] { "value1", "value2" };
+            return await employee.GetAccess();
         }
 
-        // GET api/<EmployeeController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        // GET: api/<EmployeeController>
+        [HttpGet("registered-employee")]
+        public async Task<List<RegisteredModel>> List()
         {
-            return "value";
+            return await employee.List();
         }
 
         // POST api/<EmployeeController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost("signup")]
+        public async Task<bool> SignUp([FromBody] SignUpModel employeeModel)
         {
-        }
-
-        // PUT api/<EmployeeController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<EmployeeController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return await employee.SingUp(employeeModel);
         }
     }
 }

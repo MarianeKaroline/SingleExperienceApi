@@ -1,6 +1,8 @@
-﻿using SingleExperience.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+using SingleExperience.Domain;
 using SingleExperience.Domain.Entities;
 using SingleExperience.Domain.Enums;
+using SingleExperience.Repository.Common.Domain;
 using SingleExperience.Repository.Services.BoughtServices.Models;
 using SingleExperience.Repository.Services.CartServices.Models;
 using SingleExperience.Services.CartServices;
@@ -9,10 +11,11 @@ using SingleExperience.Services.ProductServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SingleExperience.Repository.Services.BoughtServices
 {
-    public class BoughtService : SessionModel
+    public class BoughtService : Session
     {
         protected readonly Context context;
         private ClientService clientService;
@@ -42,7 +45,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     StatusBoughtEnum = p.StatusBoughtEnum,
                     DateBought = p.DateBought
                 })
-                .Where(p => p.Cpf == Session)
+                .Where(p => p.Cpf == SessionId)
                 .ToList();
         }
 
@@ -60,7 +63,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                 .ToList();
         }
 
-        public void Add(AddBoughtModel addBought)
+        public async Task Add(AddBoughtModel addBought)
         {
             StatusBoughtEnum statusBought = 0;
             Bought bought;
@@ -70,37 +73,50 @@ namespace SingleExperience.Repository.Services.BoughtServices
             else
                 statusBought = StatusBoughtEnum.ConfirmacaoPendente;
 
-            //Adiciona compra
-            if (addBought.Payment == PaymentEnum.CreditCard)
+            using (var transaction = await context.BeginTransactionAsync())
             {
-                bought = new Bought()
+                try
                 {
-                    TotalPrice = addBought.TotalPrice,
-                    AddressId = addBought.AddressId,
-                    PaymentEnum = addBought.Payment,
-                    CreditCardId = clientService.ListCard(Session).Where(p => p.CreditCardId == addBought.CreditCardId).FirstOrDefault().CreditCardId,
-                    Cpf = Session,
-                    StatusBoughtEnum = statusBought,
-                    DateBought = DateTime.Now
-                };
-            }
-            else
-            {
-                bought = new Bought()
+                    //Adiciona compra
+                    if (addBought.Payment == PaymentEnum.CreditCard)
+                    {
+                        bought = new Bought()
+                        {
+                            TotalPrice = addBought.TotalPrice,
+                            AddressId = addBought.AddressId,
+                            PaymentEnum = addBought.Payment,
+                            CreditCardId = clientService.ListCard().Where(p => p.CreditCardId == addBought.CreditCardId).FirstOrDefault().CreditCardId,
+                            Cpf = SessionId,
+                            StatusBoughtEnum = statusBought,
+                            DateBought = DateTime.Now
+                        };
+                    }
+                    else
+                    {
+                        bought = new Bought()
+                        {
+                            TotalPrice = addBought.TotalPrice,
+                            AddressId = addBought.AddressId,
+                            PaymentEnum = addBought.Payment,
+                            Cpf = SessionId,
+                            StatusBoughtEnum = statusBought,
+                            DateBought = DateTime.Now
+                        };
+                    }
+
+                    await context.Bought.AddAsync(bought);
+                    await context.SaveChangesAsync();
+
+                    AddProduct();
+
+                    transaction.Commit();
+                }
+                catch (Exception e)
                 {
-                    TotalPrice = addBought.TotalPrice,
-                    AddressId = addBought.AddressId,
-                    PaymentEnum = addBought.Payment,
-                    Cpf = Session,
-                    StatusBoughtEnum = statusBought,
-                    DateBought = DateTime.Now
-                };
+                    await transaction.RollbackAsync();
+                }
             }
-
-            context.Bought.Add(bought);
-            context.SaveChanges();
-
-            AddProduct();
+            
         }
 
         public void AddProduct()
@@ -110,7 +126,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
 
             //Adiciona na lista os produtos que estão ativos no carrinho
             listItens.Add(cartService.ListItens(getCart.CartId)
-                .Where(i => i.StatusProductEnum == StatusProductEnum.Ativo)
+                .Where(i => i.StatusProductEnum == StatusProductEnum.Active)
                 .FirstOrDefault());
 
             listItens.ForEach(i =>
@@ -129,22 +145,22 @@ namespace SingleExperience.Repository.Services.BoughtServices
 
         }
 
-        public void UpdateStatus(int boughtId, StatusBoughtEnum status)
+        public async Task UpdateStatus(int boughtId, StatusBoughtEnum status)
         {
             var getBought = context.Bought.FirstOrDefault(i => i.BoughtId == boughtId);
 
             getBought.StatusBoughtEnum = status;
 
             context.Bought.Update(getBought);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        public PreviewBoughtModel PreviewBoughts(BuyModel bought, int addressId)
+        public async Task<PreviewBoughtModel> PreviewBoughts(BuyModel bought, int addressId)
         {
             var preview = new PreviewBoughtModel();
             var client = clientService.GetUser();
-            var address = clientService.ListAddress(Session);
-            var card = clientService.ListCard(Session);
+            var address = clientService.ListAddress();
+            var card = clientService.ListCard();
             var cart = cartService.Get();
             var itens = cartService.ListItens(cart.CartId);
             var listProducts = new List<ProductCartModel>();
@@ -189,7 +205,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
             {
                 bought.Ids.ForEach(i =>
                 {
-                    listProducts.Add(cartService.ShowProducts(bought.Status)
+                    listProducts.Add(cartService.ShowProducts().Result
                                     .Where(j => j.ProductId == i)
                                     .FirstOrDefault());
                 });
@@ -197,18 +213,17 @@ namespace SingleExperience.Repository.Services.BoughtServices
             }
             else
             {
-                preview.Itens = cartService.ShowProducts(bought.Status);
+                preview.Itens = await cartService.ShowProducts();
             }
 
             return preview;
         }
 
-
-        public List<BoughtModel> Show()
+        public async Task<List<BoughtModel>> Show()
         {
             var client = clientService.GetUser();
-            var address = clientService.ListAddress(Session);
-            var card = clientService.ListCard(Session);
+            var address = clientService.ListAddress();
+            var card = clientService.ListCard();
             var cart = cartService.Get();
             var itens = cartService.ListItens(cart.CartId);
             var listProducts = new List<BoughtModel>();
@@ -261,23 +276,23 @@ namespace SingleExperience.Repository.Services.BoughtServices
             return listProducts;
         }
 
-        public bool HasBought(int boughtId)
+        public async Task<bool> Exist(int boughtId)
         {
             //Verifica se o número da compra que o cliente digitou está correto
-            return context.Bought.Any(i => i.BoughtId == boughtId);
+            return await context.Bought.AnyAsync(i => i.BoughtId == boughtId);
         }        
 
-        public List<BoughtModel> ListAll()
+        public async Task<List<BoughtModel>> ListAll()
         {
             var listProducts = new List<BoughtModel>();
-            var listBought = context.Bought.ToList();
+            var listBought = await context.Bought.ToListAsync();
 
             //Lista todas as compras
             listBought.ForEach(i =>
             {
                 var client = context.Enjoyer.FirstOrDefault(j => j.Cpf == i.Cpf);
-                var address = clientService.ListAddress(i.Cpf);
-                var card = clientService.ListCard(i.Cpf);
+                var address = context.Address.Where(j => j.Cpf == i.Cpf);
+                var card = context.CreditCard.Where(j => j.Cpf == i.Cpf);
                 var boughtModel = new BoughtModel();
                 boughtModel.Itens = new List<ProductBoughtModel>();
 
@@ -317,9 +332,10 @@ namespace SingleExperience.Repository.Services.BoughtServices
             return listProducts;
         }
 
-        public List<BoughtModel> BoughtPendent(StatusBoughtEnum status)
+        public async Task<List<BoughtModel>> BoughtPendent(StatusBoughtEnum status)
         {
-            return ListAll().Where(i => i.StatusId == status).ToList();
+            var list = await ListAll();
+            return list.Where(i => i.StatusId == status).ToList();
         }
     }
 }
