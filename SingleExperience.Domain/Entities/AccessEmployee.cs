@@ -7,8 +7,11 @@ namespace SingleExperience.Domain.Entities
     {
         [Key]
         public string Cpf { get; set; }
+
+        // FK
         [ForeignKey(nameof(Cpf))]
         public User User { get; set; }
+
         public bool AccessInventory { get; set; }
         public bool AccessRegister { get; set; }
     }

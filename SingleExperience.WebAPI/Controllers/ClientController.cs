@@ -1,16 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SingleExperience.Repository.Services.ClientServices.Models;
+﻿using SingleExperience.Repository.Services.ClientServices.Models;
 using SingleExperience.Services.ClientServices;
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace SingleExperience.WebAPI.Controllers
 {
-    [Route("singleexperience")]
+    [Route("[controller]/client")]
     [ApiController]
     public class ClientController : ControllerBase
     {
@@ -18,54 +14,46 @@ namespace SingleExperience.WebAPI.Controllers
 
         public ClientController(ClientService client) => this.client = client;
 
-
-        // GET singleexperience/creditcard
         [HttpGet("creditcard")]
-        public async Task<List<ShowCardModel>> ShowCard()
+        public async Task<List<ShowCardModel>> ShowCards()
         {
             return await client.ShowCards();
         }
 
-        // GET singleexperience/address
         [HttpGet("address")]
-        public async Task<List<ShowAddressModel>> ShowAddress()
+        public async Task<List<ShowAddressModel>> ShowAddresses()
         {
-            return await client.ShowAddress();
+            return await client.ShowAddresses();
         }
 
-        // GET singleexperience/hascard
-        [HttpGet("hascard")]
-        public async Task<bool> HasCard()
+        [HttpGet("has/card")]
+        public async Task<bool> ExistCard()
         {
-            return await client.HasCard();
+            return await client.ExistCard();
         }
 
-        // GET singleexperience/hasaddress
-        [HttpGet("hasaddress")]
-        public async Task<bool> HasAddress()
+        [HttpGet("has/address")]
+        public async Task<bool> ExistAddress()
         {
-            return await client.HasAddress();
+            return await client.ExistAddress();
         }
 
-        // POST: singleexperience/addcard
-        [HttpPost("addcard")]
+        [HttpPost("card")]
         public async Task AddCard([FromBody] CardModel card)
         {
             await client.AddCard(card);
         }
 
-        // POST: singleexperience/addaddress
-        [HttpPost("addaddress")]
+        [HttpPost("address")]
         public async Task<int> AddAddress([FromBody] AddressModel address)
         {
             return await client.AddAddress(address);
         }
 
-        // POST: singleexperience/signup
         [HttpPost("signup")]
-        public async Task<bool> SignUp([FromBody] SignUpModel signUp)
+        public async Task<bool> Signup([FromBody] SignUpModel signUp)
         {
-            return await client.SignUpClient(signUp);
+            return await client.Signup(signUp);
         }
     }
 }

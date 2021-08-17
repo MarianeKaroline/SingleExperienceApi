@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SingleExperience.Domain;
-using SingleExperience.Domain.Entities;
+﻿using SingleExperience.Repository.Services.EmployeeServices.Models;
 using SingleExperience.Repository.Services.ClientServices.Models;
-using SingleExperience.Repository.Services.EmployeeServices.Models;
 using SingleExperience.Services.UserServices;
+using SingleExperience.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
+using SingleExperience.Domain;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace SingleExperience.Services.EmployeeServices
 {
@@ -19,20 +19,7 @@ namespace SingleExperience.Services.EmployeeServices
             contexts = context;
         }
 
-
-        public async Task<AccessEmployeeModel> GetAccess()
-        {
-            return await contexts.AccessEmployee
-                .Where(i => i.Cpf == SessionId)
-                .Select(i => new AccessEmployeeModel
-                {
-                    AccessInventory = i.AccessInventory,
-                    AccessRegister = i.AccessRegister
-                })
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<List<RegisteredModel>> List()
+        public async Task<List<RegisteredModel>> Get()
         {
             return await contexts.Enjoyer
                      .Where(i => i.Employee == true)
@@ -47,9 +34,26 @@ namespace SingleExperience.Services.EmployeeServices
                      .ToListAsync();
         }
 
-        public async Task<bool> SingUp(SignUpModel employee)
+        public async Task<AccessEmployeeModel> GetAccess()
         {
-            var existEmployee = GetUser();
+            return await contexts.AccessEmployee
+                .Where(i => i.Cpf == SessionId)
+                .Select(i => new AccessEmployeeModel
+                {
+                    AccessInventory = i.AccessInventory,
+                    AccessRegister = i.AccessRegister
+                })
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> Singup(SignUpModel employee)
+        {
+            employee.Validator();
+
+            var existEmployee = await context.Enjoyer
+                .Where(i => i.Cpf == employee.Cpf && i.Employee == employee.Employee)
+                .FirstOrDefaultAsync();
+
             if (existEmployee == null)
             {
                 await SignUp(employee);

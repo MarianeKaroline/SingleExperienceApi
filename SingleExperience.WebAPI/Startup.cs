@@ -1,17 +1,17 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using SingleExperience.Domain;
-using SingleExperience.Repository.Common.Domain;
 using SingleExperience.Repository.Services.BoughtServices;
-using SingleExperience.Services.CartServices;
-using SingleExperience.Services.ClientServices;
 using SingleExperience.Services.EmployeeServices;
 using SingleExperience.Services.ProductServices;
+using Microsoft.Extensions.DependencyInjection;
+using SingleExperience.Services.ClientServices;
+using SingleExperience.Services.CartServices;
 using SingleExperience.Services.UserServices;
+using Microsoft.Extensions.Configuration;
+using SingleExperience.Domain.Common;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using SingleExperience.Domain;
 
 namespace SingleExperience.WebAPI
 {

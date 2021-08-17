@@ -1,4 +1,4 @@
-﻿namespace SingleExperience.Repository.Services.UserSevices.Models
+﻿namespace SingleExperience.Repository.Services.UserServices.Models
 {
     public class UserModel
     {

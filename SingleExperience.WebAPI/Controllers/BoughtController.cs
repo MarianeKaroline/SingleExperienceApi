@@ -1,18 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SingleExperience.Domain.Enums;
-using SingleExperience.Repository.Services.BoughtServices;
-using SingleExperience.Repository.Services.BoughtServices.Models;
+﻿using SingleExperience.Repository.Services.BoughtServices.Models;
 using SingleExperience.Repository.Services.CartServices.Models;
-using System;
+using SingleExperience.Repository.Services.BoughtServices;
+using SingleExperience.Domain.Enums;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace SingleExperience.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class BoughtController : ControllerBase
     {
@@ -20,51 +16,43 @@ namespace SingleExperience.WebAPI.Controllers
 
         public BoughtController(BoughtService bought) => this.bought = bought;
 
-
-        // GET: api/<BoughtController>
-        [HttpGet]
-        public async Task<PreviewBoughtModel> Preview([FromBody] BuyModel boughtModel, int addressId)
+        [HttpGet("manager/allboughts")]
+        public async Task<List<BoughtModel>> GetAll()
         {
-            return await bought.PreviewBoughts(boughtModel, addressId);
+            return await bought.GetAll();
         }
 
-        // GET: api/<BoughtController>
-        [HttpGet]
+        [HttpGet("preview")]
+        public async Task<PreviewBoughtModel> Preview([FromBody] BuyModel boughtModel, int addressId)
+        {
+            return await bought.Preview(boughtModel, addressId);
+        }
+
+        [HttpGet("user/boughts")]
         public async Task<List<BoughtModel>> Show()
         {
             return await bought.Show();
         }
 
-        // GET: api/<BoughtController>
-        [HttpGet]
-        public async Task<List<BoughtModel>> ListAll()
-        {
-            return await bought.ListAll();
-        }
-
-        // GET: api/<BoughtController>
-        [HttpGet]
+        [HttpGet("manager/boughts/{status}")]
         public async Task<List<BoughtModel>> Status(StatusBoughtEnum status)
         {
-            return await bought.BoughtPendent(status);
+            return await bought.Status(status);
         }
 
-        // GET: api/<BoughtController>
-        [HttpGet]
+        [HttpGet("exist-bought/{boughtId}")]
         public async Task<bool> Exist(int boughtId)
         {
             return await bought.Exist(boughtId);
         }
 
-        // POST api/<BoughtController>
-        [HttpPost]
+        [HttpPost("addbought")]
         public async Task Add([FromBody] AddBoughtModel addBought)
         {
             await bought.Add(addBought);
         }
 
-        // PUT api/<BoughtController>/5
-        [HttpPut("{id}")]
+        [HttpPut("singleexperience/{boughtId}/{status}")]
         public async Task UdateStatus(int boughtId, StatusBoughtEnum status)
         {
             await bought.UpdateStatus(boughtId, status);

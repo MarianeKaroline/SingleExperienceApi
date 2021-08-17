@@ -1,18 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SingleExperience.Domain.Entities;
+﻿using SingleExperience.Repository.Services.EmployeeServices.Models;
 using SingleExperience.Repository.Services.ClientServices.Models;
-using SingleExperience.Repository.Services.EmployeeServices.Models;
 using SingleExperience.Services.EmployeeServices;
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace SingleExperience.WebAPI.Controllers
 {
-    [Route("singleexperience/employee")]
+    [Route("[controller]")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
@@ -20,26 +15,22 @@ namespace SingleExperience.WebAPI.Controllers
 
         public EmployeeController(EmployeeService employee) => this.employee = employee;
 
+        [HttpGet("employees")]
+        public async Task<List<RegisteredModel>> Get()
+        {
+            return await employee.Get();
+        }
 
-        // GET: api/<EmployeeController>
-        [HttpGet("acess")]
+        [HttpGet("access")]
         public async Task<AccessEmployeeModel> GetAccess()
         {
             return await employee.GetAccess();
         }
 
-        // GET: api/<EmployeeController>
-        [HttpGet("registered-employee")]
-        public async Task<List<RegisteredModel>> List()
-        {
-            return await employee.List();
-        }
-
-        // POST api/<EmployeeController>
         [HttpPost("signup")]
-        public async Task<bool> SignUp([FromBody] SignUpModel employeeModel)
+        public async Task<bool> Signup([FromBody] SignUpModel employeeModel)
         {
-            return await employee.SingUp(employeeModel);
+            return await employee.Singup(employeeModel);
         }
     }
 }

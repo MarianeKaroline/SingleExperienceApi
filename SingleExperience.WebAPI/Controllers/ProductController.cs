@@ -1,16 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SingleExperience.Domain.Enums;
+﻿using SingleExperience.Repository.Services.ProductServices.Models;
 using SingleExperience.Repository.Services.BoughtServices.Models;
-using SingleExperience.Repository.Services.ProductServices.Models;
 using SingleExperience.Services.ProductServices;
+using SingleExperience.Domain.Enums;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace SingleExperience.WebAPI.Controllers
 {
-    [Route("singleexperience")]
+    [Route("[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -18,65 +16,54 @@ namespace SingleExperience.WebAPI.Controllers
 
         public ProductController(ProductService product) => this.product = product;
 
-        // GET: singleexperience/manager/products
         [HttpGet("manager/products")]
-        public async Task<List<ListProductsModel>> ListAllProducts()
+        public async Task<List<ListProductsModel>> GetAll()
         {
-            return await product.ListAllProducts();
+            return await product.GetAll();
         }
 
-        // GET: singleexperience/home
         [HttpGet("home")]
-        public async Task<List<BestSellingModel>> ListProduct()
+        public async Task<List<BestSellingModel>> Get()
         {
-            return await product.ListProducts();
+            return await product.Get();
         }
 
-        // GET singleexperience/category/computer
         [HttpGet("category/{categoryId}")]
-        public async Task<List<CategoryModel>> ListProductCategory(CategoryEnum categoryId)
+        public async Task<List<CategoryModel>> GetCategory(CategoryEnum categoryId)
         {
-            return await product.ListProductCategory(categoryId);
+            return await product.GetCategory(categoryId);
         }
 
-        // GET singleexperience/product-5
-        [HttpGet("product-{id}")]
-        public async Task<ProductSelectedModel> SelectedProduct(int id)
+        [HttpGet("product/{productId}")]
+        public async Task<ProductSelectedModel> GetSelected(int productId)
         {
-            return await product.SelectedProduct(id);
+            return await product.GetSelected(productId);
         }
 
-        // GET api/singleexperience/5
         [HttpGet("{productId}")]
-        public async Task<bool> HasProduct(int productId)
+        public async Task<bool> Exist(int productId)
         {
-            return await product.HasProduct(productId);
+            return await product.Exist(productId);
         }
 
-        // POST singleexperience/newproduct
         [HttpPost("newproduct")]
-        public async Task<ActionResult> Add([FromBody] AddNewProductModel addProduct)
+        public async Task<bool> Add([FromBody] AddNewProductModel addProduct)
         {
-            await product.Add(addProduct);
-
-            return Ok("WORK!!!");
+            return await product.Add(addProduct);
         }
 
-        // PUT singleexperience
         [HttpPut]
         public async Task<bool> Confirm([FromBody] List<ProductBoughtModel> products)
         {
             return await product.Confirm(products);
         }
 
-        // PUT singleexperience/5/false
         [HttpPut("{productId:int}/{available:bool}")]
         public async Task<bool> EditAvailable(int productId, bool available)
         {
             return await product.EditAvailable(productId, available);
         }
 
-        // PUT singleexperience/5/4.5
         [HttpPut("{productId:int}/{rating:decimal}")]
         public async Task Rating(int productId, decimal rating)
         {

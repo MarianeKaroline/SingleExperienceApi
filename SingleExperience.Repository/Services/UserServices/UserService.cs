@@ -1,12 +1,13 @@
-﻿using SingleExperience.Domain;
+﻿using SingleExperience.Repository.Services.ClientServices.Models;
+using SingleExperience.Repository.Services.UserServices.Models;
 using SingleExperience.Domain.Entities;
-using SingleExperience.Repository.Common.Domain;
-using SingleExperience.Repository.Services.ClientServices.Models;
-using SingleExperience.Repository.Services.UserSevices.Models;
+using SingleExperience.Domain.Common;
+using Microsoft.EntityFrameworkCore;
+using SingleExperience.Domain;
+using System.Threading.Tasks;
+using System.Net.Sockets;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 
 namespace SingleExperience.Services.UserServices
 {
@@ -36,47 +37,10 @@ namespace SingleExperience.Services.UserServices
             return session;
         }
 
-        public async Task<UserModel> SignIn(SignInModel signIn)
-        {
-            var client = GetUserEmail(signIn.Email);
-            UserModel user = null;
-
-            if (client != null)
-            {
-                if (client.Password == signIn.Password)
-                    user = client;
-            }
-
-            if (user != null)
-                SessionId = user.Cpf;
-
-            return user;
-        }
-
-        //Sair
-        public async Task<string> SignOut()
-        {
-            return await GetIP();
-        }
-
         public User GetUser()
         {
             return context.Enjoyer
                 .FirstOrDefault(i => i.Cpf == SessionId);
-        }
-
-        public UserModel GetUserEmail(string email)
-        {
-            return context.Enjoyer
-                .Where(i => i.Email == email)
-                .Select(i => new UserModel()
-                {
-                    Email = i.Email,
-                    Cpf = i.Cpf,
-                    Password = i.Password,
-                    Employee = i.Employee
-                })
-                .FirstOrDefault();
         }
 
         public async Task SignUp(SignUpModel user)
@@ -94,6 +58,32 @@ namespace SingleExperience.Services.UserServices
 
             await context.Enjoyer.AddAsync(registerUser);
             await context.SaveChangesAsync();
+        }
+
+        public async Task<UserModel> SignIn(SignInModel signIn)
+        {
+            signIn.Validator();
+
+            var user = await context.Enjoyer
+                .Where(i => i.Email == signIn.Email && i.Password == signIn.Password)
+                .Select(i => new UserModel()
+                {
+                    Email = i.Email,
+                    Cpf = i.Cpf,
+                    Password = i.Password,
+                    Employee = i.Employee
+                })
+                .FirstOrDefaultAsync();
+
+            if (user != null)
+                SessionId = user.Cpf;
+
+            return user;
+        }
+
+        public async Task<string> SignOut()
+        {
+            return await GetIP();
         }
     }
 }

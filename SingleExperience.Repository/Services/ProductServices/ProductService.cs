@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SingleExperience.Domain;
-using SingleExperience.Domain.Entities;
-using SingleExperience.Domain.Enums;
+﻿using SingleExperience.Repository.Services.ProductServices.Models;
 using SingleExperience.Repository.Services.BoughtServices.Models;
-using SingleExperience.Repository.Services.ProductServices.Models;
+using SingleExperience.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using SingleExperience.Domain.Enums;
 using System.Collections.Generic;
-using System.Linq;
+using SingleExperience.Domain;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace SingleExperience.Services.ProductServices
 {
@@ -19,7 +19,7 @@ namespace SingleExperience.Services.ProductServices
             this.context = context;
         }
 
-        public async Task<List<ListProductsModel>> ListAllProducts()
+        public async Task<List<ListProductsModel>> GetAll()
         {
             return await context.Product
                 .Select(i => new ListProductsModel()
@@ -35,7 +35,7 @@ namespace SingleExperience.Services.ProductServices
                 .ToListAsync();
         }
 
-        public async Task<List<BestSellingModel>> ListProducts()
+        public async Task<List<BestSellingModel>> Get()
         {
             return await context.Product
                 .Where(p => p.Available == true)
@@ -52,7 +52,7 @@ namespace SingleExperience.Services.ProductServices
                 .ToListAsync();
         }
 
-        public async Task<List<CategoryModel>> ListProductCategory(CategoryEnum categoryId)
+        public async Task<List<CategoryModel>> GetCategory(CategoryEnum categoryId)
         {
             return await context.Product
                 .Where(p => p.Available == true && p.CategoryEnum == categoryId)
@@ -67,7 +67,7 @@ namespace SingleExperience.Services.ProductServices
                 .ToListAsync();
         }
         
-        public async Task<ProductSelectedModel> SelectedProduct(int productId)
+        public async Task<ProductSelectedModel> GetSelected(int productId)
         {
             return await context.Product
              .Where(p => p.Available == true && p.ProductId == productId)
@@ -82,6 +82,33 @@ namespace SingleExperience.Services.ProductServices
                  Rating = i.Rating
              })
              .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> Exist(int productId)
+        {
+            return await context.Product.AnyAsync(i => i.ProductId == productId);
+        }
+
+        public async Task<bool> Add(AddNewProductModel newProduct)
+        {
+            newProduct.Validator();
+
+            var model = new Product()
+            {
+                Name = newProduct.Name,
+                Price = newProduct.Price,
+                Detail = newProduct.Detail,
+                Amount = newProduct.Amount,
+                CategoryEnum = newProduct.CategoryId,
+                Ranking = newProduct.Ranking,
+                Available = newProduct.Available,
+                Rating = newProduct.Rating
+            };
+
+            await context.Product.AddAsync(model);
+            await context.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<bool> Confirm(List<ProductBoughtModel> products)
@@ -124,29 +151,6 @@ namespace SingleExperience.Services.ProductServices
 
             context.Product.Update(product);
             await context.SaveChangesAsync();
-        }
-
-        public async Task Add(AddNewProductModel newProduct)
-        {
-            var model = new Product()
-            {
-                Name = newProduct.Name,
-                Price = newProduct.Price,
-                Detail = newProduct.Detail,
-                Amount = newProduct.Amount,
-                CategoryEnum = newProduct.CategoryId,
-                Ranking = newProduct.Ranking,
-                Available = newProduct.Available,
-                Rating = newProduct.Rating
-            };
-
-            await context.Product.AddAsync(model);
-            await context.SaveChangesAsync();
-        }
-
-        public async Task<bool> HasProduct(int productId)
-        {
-            return await context.Product.AnyAsync(i => i.ProductId == productId);
         }
     }
 }

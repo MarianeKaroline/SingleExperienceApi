@@ -1,7 +1,7 @@
 ﻿using SingleExperience.Domain.Entities;
 using System.Collections.Generic;
 
-namespace SingleExperience.Repository.Common.Domain
+namespace SingleExperience.Domain.Common
 {
     public class Session
     {

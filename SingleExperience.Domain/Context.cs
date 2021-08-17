@@ -10,12 +10,6 @@ namespace SingleExperience.Domain
         {
         }
 
-
-        public async Task<Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction> BeginTransactionAsync()
-        {
-            return await this.Database.BeginTransactionAsync();
-        }
-
         public DbSet<User> Enjoyer { get; set; }
         public DbSet<AccessEmployee> AccessEmployee { get; set; }
         public DbSet<Address> Address { get; set; }
@@ -30,5 +24,9 @@ namespace SingleExperience.Domain
         public DbSet<Product> Product { get; set; }
         public DbSet<Category> Category { get; set; }
 
+        public async Task<Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await this.Database.BeginTransactionAsync();
+        }
     }
 }
