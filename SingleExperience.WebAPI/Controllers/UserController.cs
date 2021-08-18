@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SingleExperience.WebAPI.Controllers
 {
-    [Route("[controller]/user")]
+    [Route("[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -20,7 +20,7 @@ namespace SingleExperience.WebAPI.Controllers
         }        
 
         [HttpGet("signin")]
-        public async Task<UserModel> SignIn(SignInModel signIn)
+        public async Task<UserModel> SignIn([FromBody] SignInModel signIn)
         {
             return await user.SignIn(signIn);
         }

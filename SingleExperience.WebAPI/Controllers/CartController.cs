@@ -32,10 +32,10 @@ namespace SingleExperience.WebAPI.Controllers
             return await cart.CallEditStatus(products);
         }
 
-        [HttpPost("addcart")]
-        public async Task AddProduct([FromBody] CartModel cartModel)
+        [HttpPost("addcart/{productId}")]
+        public async Task AddProduct(int productId)
         {
-            await cart.AddProduct(cartModel);
+            await cart.AddProduct(productId);
         }
 
         [HttpPost("passcart")]

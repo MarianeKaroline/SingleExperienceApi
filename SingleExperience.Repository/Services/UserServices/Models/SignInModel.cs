@@ -10,13 +10,13 @@ namespace SingleExperience.Repository.Services.UserServices.Models
         public void Validator()
         {
             if (this.Email == null)
-                throw new Exception("Email required");
+                throw new Exception("Email Required");
 
             if (!this.Email.Contains('@'))
                 throw new Exception("Invalid Email");
 
             if (this.Password == null)
-                throw new Exception("Password required");
+                throw new Exception("Password Required");
         }
     }
 }

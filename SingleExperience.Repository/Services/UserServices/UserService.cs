@@ -4,6 +4,7 @@ using SingleExperience.Domain.Entities;
 using SingleExperience.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using SingleExperience.Domain;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace SingleExperience.Services.UserServices
 
         public async Task<string> GetIP()
         {
+            Itens = new List<ProductCart>();
             var host = await Dns.GetHostEntryAsync(Dns.GetHostName());
             string session = "";
 

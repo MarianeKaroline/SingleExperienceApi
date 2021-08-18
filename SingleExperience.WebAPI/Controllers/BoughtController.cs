@@ -23,9 +23,9 @@ namespace SingleExperience.WebAPI.Controllers
         }
 
         [HttpGet("preview")]
-        public async Task<PreviewBoughtModel> Preview([FromBody] BuyModel boughtModel, int addressId)
+        public async Task<PreviewBoughtModel> Preview([FromBody] BuyModel boughtModel)
         {
-            return await bought.Preview(boughtModel, addressId);
+            return await bought.Preview(boughtModel);
         }
 
         [HttpGet("user/boughts")]
@@ -52,7 +52,7 @@ namespace SingleExperience.WebAPI.Controllers
             await bought.Add(addBought);
         }
 
-        [HttpPut("singleexperience/{boughtId}/{status}")]
+        [HttpPut("{boughtId}/{status}")]
         public async Task UdateStatus(int boughtId, StatusBoughtEnum status)
         {
             await bought.UpdateStatus(boughtId, status);

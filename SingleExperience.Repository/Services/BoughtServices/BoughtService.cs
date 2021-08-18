@@ -38,7 +38,6 @@ namespace SingleExperience.Repository.Services.BoughtServices
             //Lista todas as compras
             listBought.ForEach(i =>
             {
-                var teste = context.Enjoyer.Where(j => j.Cpf == i.Cpf).FirstOrDefaultAsync();
                 var client = context.Enjoyer.FirstOrDefault(j => j.Cpf == i.Cpf);
                 var address = context.Address.Where(j => j.Cpf == i.Cpf);
                 var card = context.CreditCard.Where(j => j.Cpf == i.Cpf);
@@ -68,9 +67,9 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     .Select(j => new ProductBoughtModel()
                     {
                         ProductId = j.ProductId,
-                        ProductName = context.Product.ToList().FirstOrDefault(i => i.ProductId == j.ProductId).Name,
+                        ProductName = j.Product.Name,
                         Amount = j.Amount,
-                        Price = context.Product.ToList().FirstOrDefault(i => i.ProductId == j.ProductId).Price,
+                        Price = j.Product.Price,
                         BoughtId = j.BoughtId
                     })
                     .ToList();
@@ -106,6 +105,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
             return context.ProductBought
                 .Select(p => new ProductBought
                 {
+                    Product = p.Product,
                     ProductId = p.ProductId,
                     Amount = p.Amount,
                     BoughtId = p.BoughtId,
@@ -167,7 +167,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     await transaction.RollbackAsync();
                     Console.WriteLine(e);
                 }
-            }            
+            }
         }
 
         public void AddProduct()
@@ -206,45 +206,31 @@ namespace SingleExperience.Repository.Services.BoughtServices
             await context.SaveChangesAsync();
         }
 
-        public async Task<PreviewBoughtModel> Preview(BuyModel bought, int addressId)
+        public async Task<PreviewBoughtModel> Preview(BuyModel bought)
         {
             var preview = new PreviewBoughtModel();
             var client = clientService.GetUser();
-            var address = clientService.GetAddress();
+            var address = clientService.GetAddress().FirstOrDefault(i => i.AddressId == bought.AddressId);
             var card = clientService.GetCard();
-            var cart = cartService.Get();
-            var itens = cartService.GetProducts(cart.CartId);
-            var listProducts = new List<ProductCartModel>();
 
-            //Pega alguns atributos do cliente
             preview.FullName = client.Name;
             preview.Phone = client.Phone;
 
-            //Pega alguns atributos do endereço
-            var aux = address
-                .FirstOrDefault(i => i.AddressId == addressId);
-
-            preview.Cep = aux.PostCode;
-            preview.Street = aux.Street;
-            preview.Number = aux.Number;
-            preview.City = aux.City;
-            preview.State = aux.State;
+            preview.Cep = address.PostCode;
+            preview.Street = address.Street;
+            preview.Number = address.Number;
+            preview.City = address.City;
+            preview.State = address.State;
 
             preview.Method = bought.Method;
 
             if (bought.Method == PaymentEnum.CreditCard)
             {
-                card
-                    .Where(i => i.Number.ToString().Contains(bought.Confirmation))
-                    .ToList()
-                    .ForEach(i =>
-                    {
-                        preview.NumberCard = i.Number.ToString();
-                    });
+               preview.NumberCard = card
+                    .FirstOrDefault(i => i.CreditCardId == bought.CreditCardId).Number;
             }
             else if (bought.Method == PaymentEnum.BankSlip)
             {
-                var a = bought.Confirmation.Length;
                 preview.Code = bought.Confirmation;
             }
             else
@@ -252,20 +238,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                 preview.Pix = bought.Confirmation;
             }
 
-            if (bought.Ids.Count > 0)
-            {
-                bought.Ids.ForEach(i =>
-                {
-                    listProducts.Add(cartService.ShowProducts().Result
-                                    .Where(j => j.ProductId == i)
-                                    .FirstOrDefault());
-                });
-                preview.Itens = listProducts;
-            }
-            else
-            {
-                preview.Itens = await cartService.ShowProducts();
-            }
+            preview.Itens = await cartService.ShowProducts();
 
             return preview;
         }
@@ -275,8 +248,6 @@ namespace SingleExperience.Repository.Services.BoughtServices
             var client = clientService.GetUser();
             var address = clientService.GetAddress();
             var card = clientService.GetCard();
-            var cart = cartService.Get();
-            var itens = cartService.GetProducts(cart.CartId);
             var listProducts = new List<BoughtModel>();
 
             var listBought = Get();
@@ -299,7 +270,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     boughtModel.State = aux.State;
 
                     boughtModel.BoughtId = i.BoughtId;
-                    boughtModel.PaymentMethod = (PaymentEnum)i.PaymentEnum;
+                    boughtModel.PaymentMethod = i.PaymentEnum;
 
                     if (i.PaymentEnum == PaymentEnum.CreditCard)
                         boughtModel.NumberCard = card.FirstOrDefault(j => j.CreditCardId == i.CreditCardId).Number;
@@ -313,9 +284,9 @@ namespace SingleExperience.Repository.Services.BoughtServices
                         .Select(j => new ProductBoughtModel()
                         {
                             ProductId = j.ProductId,
-                            ProductName = context.Product.ToList().FirstOrDefault(i => i.ProductId == j.ProductId).Name,
+                            ProductName = j.Product.Name,
                             Amount = j.Amount,
-                            Price = context.Product.ToList().FirstOrDefault(i => i.ProductId == j.ProductId).Price,
+                            Price = j.Product.Price,
                             BoughtId = j.BoughtId
                         })
                         .ToList();
@@ -331,7 +302,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
         {
             //Verifica se o número da compra que o cliente digitou está correto
             return await context.Bought.AnyAsync(i => i.BoughtId == boughtId);
-        }        
+        }
 
         public async Task<List<BoughtModel>> Status(StatusBoughtEnum status)
         {

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using SingleExperience.Domain;
 using System.Threading.Tasks;
 using System.Linq;
+using System;
 
 namespace SingleExperience.Services.ProductServices
 {
@@ -134,6 +135,9 @@ namespace SingleExperience.Services.ProductServices
         {
             var product = await context.Product
                 .FirstOrDefaultAsync(i => i.ProductId == productId && i.Available != available);
+
+            if (product == null)
+                throw new Exception($"O produto já está como {available}");
 
             product.Available = available;
 
