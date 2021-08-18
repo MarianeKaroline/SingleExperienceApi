@@ -16,7 +16,7 @@ namespace SingleExperience.WebAPI.Controllers
 
         public BoughtController(BoughtService bought) => this.bought = bought;
 
-        [HttpGet("manager/allboughts")]
+        [HttpGet("allboughts")]
         public async Task<List<BoughtModel>> GetAll()
         {
             return await bought.GetAll();
@@ -28,22 +28,16 @@ namespace SingleExperience.WebAPI.Controllers
             return await bought.Preview(boughtModel);
         }
 
-        [HttpGet("user/boughts")]
+        [HttpGet("boughts")]
         public async Task<List<BoughtModel>> Show()
         {
             return await bought.Show();
         }
 
-        [HttpGet("manager/boughts/{status}")]
-        public async Task<List<BoughtModel>> Status(StatusBoughtEnum status)
+        [HttpGet("{status}")]
+        public async Task<List<BoughtModel>> GetStatus(StatusBoughtEnum status)
         {
-            return await bought.Status(status);
-        }
-
-        [HttpGet("exist-bought/{boughtId}")]
-        public async Task<bool> Exist(int boughtId)
-        {
-            return await bought.Exist(boughtId);
+            return await bought.GetStatus(status);
         }
 
         [HttpPost("addbought")]

@@ -83,21 +83,6 @@ namespace SingleExperience.Services.ClientServices
                 })
                 .ToListAsync();
         }
-
-        public async Task<bool> ExistCard()
-        {
-            return await contexts.CreditCard.AnyAsync(i => i.Cpf == SessionId);
-        }
-       
-        public async Task<bool> ExistAddress()
-        {
-            return await contexts.Address.AnyAsync(i => i.Cpf == SessionId);
-        }
-
-        public int IdInserted()
-        {
-            return GetCard().OrderByDescending(j => j.CreditCardId).FirstOrDefault().CreditCardId;
-        }                
         
         public async Task<int> AddAddress(AddressModel addressModel)
         {

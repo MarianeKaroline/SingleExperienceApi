@@ -26,19 +26,7 @@ namespace SingleExperience.WebAPI.Controllers
             return await client.ShowAddresses();
         }
 
-        [HttpGet("has/card")]
-        public async Task<bool> ExistCard()
-        {
-            return await client.ExistCard();
-        }
-
-        [HttpGet("has/address")]
-        public async Task<bool> ExistAddress()
-        {
-            return await client.ExistAddress();
-        }
-
-        [HttpPost("card")]
+        [HttpPost("creditcard")]
         public async Task AddCard([FromBody] CardModel card)
         {
             await client.AddCard(card);

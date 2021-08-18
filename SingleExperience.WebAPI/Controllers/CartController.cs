@@ -26,25 +26,19 @@ namespace SingleExperience.WebAPI.Controllers
             return await cart.Total();
         }
 
-        [HttpGet("edit-status")]
+        [HttpGet("edit/status")]
         public async Task<bool> EditStatus([FromBody] List<BuyProductModel> products)
         {
             return await cart.CallEditStatus(products);
         }
 
-        [HttpPost("addcart/{productId}")]
+        [HttpPost("add/{productId}")]
         public async Task AddProduct(int productId)
         {
             await cart.AddProduct(productId);
         }
 
-        [HttpPost("passcart")]
-        public async Task PassProducts()
-        {
-            await cart.PassProducts();
-        }
-
-        [HttpPut("removeproduct/{productId}")]
+        [HttpDelete("{productId}")]
         public async Task RemoveProduct(int productId)
         {
             await cart.RemoveProduct(productId);

@@ -28,7 +28,7 @@ namespace SingleExperience.Repository.Services.ClientServices.Models
             if (this.Cvv == null)
                 throw new Exception("CVV Required");
 
-            if (!this.Cvv.All(char.IsDigit) || this.Cvv.Length != 3 || this.Cvv == null)
+            if (!this.Cvv.All(char.IsDigit) || this.Cvv.Length != 3)
                 throw new Exception("Invalid CVV");
 
             if (this.Cpf == null)

@@ -229,7 +229,7 @@ namespace SingleExperience.Services.CartServices
             }
         }
 
-        public async Task PassProducts()
+        public void PassProducts()
         {
             var linesCart = new List<string>();
             var exist = false;
@@ -250,7 +250,7 @@ namespace SingleExperience.Services.CartServices
             //Passa the product to cart
             if (!exist)
             {
-                Itens.ForEach(async i =>
+                Itens.ForEach(i =>
                 {
                     var item = new ProductCart()
                     {
@@ -260,9 +260,9 @@ namespace SingleExperience.Services.CartServices
                         StatusProductEnum = i.StatusProductEnum
                     };
 
-                    await context.ProductCart.AddAsync(item);
+                    context.ProductCart.Add(item);
                 });
-                await context.SaveChangesAsync();
+                context.SaveChangesAsync();
             }
         }
 
@@ -364,6 +364,7 @@ namespace SingleExperience.Services.CartServices
                 {
                     var item = new ProductCart()
                     {
+                        Product = context.Product.FirstOrDefault(i => i.ProductId == productId),
                         ProductId = productId,
                         Amount = sum,
                         StatusProductEnum = StatusProductEnum.Active
@@ -374,6 +375,7 @@ namespace SingleExperience.Services.CartServices
                 {
                     Itens.ForEach(i =>
                     {
+                        i.Product = context.Product.FirstOrDefault(i => i.ProductId == productId);
                         i.ProductId = productId;
                         i.Amount += sum;
                         i.StatusProductEnum = StatusProductEnum.Active;

@@ -11,15 +11,9 @@ namespace SingleExperience.WebAPI.Controllers
     {
         protected readonly UserService user;
 
-        public UserController(UserService user) => this.user = user;
+        public UserController(UserService user) => this.user = user;       
 
-        [HttpGet]
-        public async Task<string> GetIP()
-        {
-            return await user.GetIP();
-        }        
-
-        [HttpGet("signin")]
+        [HttpPost("signin")]
         public async Task<UserModel> SignIn([FromBody] SignInModel signIn)
         {
             return await user.SignIn(signIn);

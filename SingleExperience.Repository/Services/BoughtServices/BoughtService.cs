@@ -116,6 +116,8 @@ namespace SingleExperience.Repository.Services.BoughtServices
 
         public async Task Add(AddBoughtModel addBought)
         {
+            addBought.Validator();
+
             StatusBoughtEnum statusBought = 0;
             Bought bought;
 
@@ -133,7 +135,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     {
                         bought = new Bought()
                         {
-                            TotalPrice = addBought.TotalPrice,
+                            TotalPrice = cartService.Total().Result.TotalPrice,
                             AddressId = addBought.AddressId,
                             PaymentEnum = addBought.PaymentId,
                             CreditCardId = clientService.GetCard().Where(p => p.CreditCardId == addBought.CreditCardId).FirstOrDefault().CreditCardId,
@@ -146,7 +148,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     {
                         bought = new Bought()
                         {
-                            TotalPrice = addBought.TotalPrice,
+                            TotalPrice = cartService.Total().Result.TotalPrice,
                             AddressId = addBought.AddressId,
                             PaymentEnum = addBought.PaymentId,
                             Cpf = SessionId,
@@ -204,6 +206,9 @@ namespace SingleExperience.Repository.Services.BoughtServices
 
             context.Bought.Update(getBought);
             await context.SaveChangesAsync();
+
+            if (status == StatusBoughtEnum.Confirmado)
+                productService.Confirm(boughtId);
         }
 
         public async Task<PreviewBoughtModel> Preview(BuyModel bought)
@@ -222,20 +227,20 @@ namespace SingleExperience.Repository.Services.BoughtServices
             preview.City = address.City;
             preview.State = address.State;
 
-            preview.Method = bought.Method;
+            preview.Method = bought.PaymentId;
 
-            if (bought.Method == PaymentEnum.CreditCard)
+            if (bought.PaymentId == PaymentEnum.CreditCard)
             {
                preview.NumberCard = card
                     .FirstOrDefault(i => i.CreditCardId == bought.CreditCardId).Number;
             }
-            else if (bought.Method == PaymentEnum.BankSlip)
-            {
-                preview.Code = bought.Confirmation;
+            else if (bought.PaymentId == PaymentEnum.BankSlip)
+            {                
+                preview.Code = Guid.NewGuid().ToString();
             }
             else
             {
-                preview.Pix = bought.Confirmation;
+                preview.Pix = Guid.NewGuid().ToString();
             }
 
             preview.Itens = await cartService.ShowProducts();
@@ -298,13 +303,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
             return listProducts;
         }
 
-        public async Task<bool> Exist(int boughtId)
-        {
-            //Verifica se o número da compra que o cliente digitou está correto
-            return await context.Bought.AnyAsync(i => i.BoughtId == boughtId);
-        }
-
-        public async Task<List<BoughtModel>> Status(StatusBoughtEnum status)
+        public async Task<List<BoughtModel>> GetStatus(StatusBoughtEnum status)
         {
             var list = await GetAll();
             return list.Where(i => i.StatusId == status).ToList();

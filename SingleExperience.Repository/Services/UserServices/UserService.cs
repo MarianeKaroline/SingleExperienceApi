@@ -1,5 +1,6 @@
 ﻿using SingleExperience.Repository.Services.ClientServices.Models;
 using SingleExperience.Repository.Services.UserServices.Models;
+using SingleExperience.Services.CartServices;
 using SingleExperience.Domain.Entities;
 using SingleExperience.Domain.Common;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +16,12 @@ namespace SingleExperience.Services.UserServices
     public class UserService : Session
     {
         protected readonly Context context;
+        private CartService cartService;
 
         public UserService(Context context)
         {
             this.context = context;
+            cartService = new CartService(context);
         }
 
         public async Task<string> GetIP()
@@ -77,8 +80,12 @@ namespace SingleExperience.Services.UserServices
                 })
                 .FirstOrDefaultAsync();
 
+
             if (user != null)
+            {
                 SessionId = user.Cpf;
+                cartService.PassProducts();
+            }
 
             return user;
         }

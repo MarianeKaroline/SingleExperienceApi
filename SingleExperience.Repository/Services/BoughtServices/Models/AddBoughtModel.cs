@@ -9,16 +9,12 @@ namespace SingleExperience.Repository.Services.BoughtServices.Models
     {
         public PaymentEnum PaymentId { get; set; }
         public int CreditCardId { get; set; }
-        public decimal TotalPrice { get; set; }
         public int AddressId { get; set; }
 
         public void Validator()
         { 
             if (this.PaymentId == 0)
                 throw new Exception("Payment Id Required");
-
-            if (this.TotalPrice == 0)
-                throw new Exception("Total Price Required");
 
             if (this.AddressId == 0)
                 throw new Exception("Address Id Required");

@@ -16,13 +16,13 @@ namespace SingleExperience.WebAPI.Controllers
 
         public ProductController(ProductService product) => this.product = product;
 
-        [HttpGet("manager/products")]
+        [HttpGet("get/all")]
         public async Task<List<ListProductsModel>> GetAll()
         {
             return await product.GetAll();
         }
 
-        [HttpGet("home")]
+        [HttpGet]
         public async Task<List<BestSellingModel>> Get()
         {
             return await product.Get();
@@ -34,28 +34,16 @@ namespace SingleExperience.WebAPI.Controllers
             return await product.GetCategory(categoryId);
         }
 
-        [HttpGet("product/{productId}")]
+        [HttpGet("{productId}")]
         public async Task<ProductSelectedModel> GetSelected(int productId)
         {
             return await product.GetSelected(productId);
-        }
-
-        [HttpGet("{productId}")]
-        public async Task<bool> Exist(int productId)
-        {
-            return await product.Exist(productId);
         }
 
         [HttpPost("newproduct")]
         public async Task<bool> Add([FromBody] AddNewProductModel addProduct)
         {
             return await product.Add(addProduct);
-        }
-
-        [HttpPut]
-        public async Task<bool> Confirm([FromBody] List<ProductBoughtModel> products)
-        {
-            return await product.Confirm(products);
         }
 
         [HttpPut("{productId:int}/{available:bool}")]

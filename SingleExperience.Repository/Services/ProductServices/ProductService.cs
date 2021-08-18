@@ -85,11 +85,6 @@ namespace SingleExperience.Services.ProductServices
              .FirstOrDefaultAsync();
         }
 
-        public async Task<bool> Exist(int productId)
-        {
-            return await context.Product.AnyAsync(i => i.ProductId == productId);
-        }
-
         public async Task<bool> Add(AddNewProductModel newProduct)
         {
             newProduct.Validator();
@@ -112,8 +107,10 @@ namespace SingleExperience.Services.ProductServices
             return true;
         }
 
-        public async Task<bool> Confirm(List<ProductBoughtModel> products)
+        public void Confirm(int boughtId)
         {
+            var products = context.ProductBought.Where(i => i.BoughtId == boughtId).ToList();
+
             products.ForEach(j =>
             {
                 var product = context.Product
@@ -126,9 +123,7 @@ namespace SingleExperience.Services.ProductServices
                 context.Product.Update(product);
             });
 
-            await context.SaveChangesAsync();
-
-            return true;
+            context.SaveChanges();
         }
 
         public async Task<bool> EditAvailable(int productId, bool available)
