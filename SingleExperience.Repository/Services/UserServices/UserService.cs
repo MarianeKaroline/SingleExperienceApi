@@ -84,7 +84,10 @@ namespace SingleExperience.Services.UserServices
             if (user != null)
             {
                 SessionId = user.Cpf;
-                cartService.PassProducts();
+                if (Itens != null && Itens.Count > 0)
+                {
+                    cartService.PassProducts(); 
+                }
             }
 
             return user;

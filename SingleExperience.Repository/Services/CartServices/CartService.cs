@@ -209,7 +209,7 @@ namespace SingleExperience.Services.CartServices
                 var exist = ExistProduct(productId);
                 if (Itens.Count > 0)
                 {
-                    await PassProducts();
+                    PassProducts();
                     exist = true;
                 }
 
