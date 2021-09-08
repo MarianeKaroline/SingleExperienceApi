@@ -29,9 +29,10 @@ namespace SingleExperience.Services.ProductServices
                     Name = i.Name,
                     Price = i.Price,
                     Amount = i.Amount,
-                    CategoryId = i.CategoryEnum,
+                    Category = i.Category,
                     Ranking = i.Ranking,
-                    Available = i.Available
+                    Available = i.Available,
+                    Image = i.Image
                 })
                 .ToListAsync();
         }
@@ -48,22 +49,36 @@ namespace SingleExperience.Services.ProductServices
                     Name = i.Name,
                     Price = i.Price,
                     Available = i.Available,
-                    Ranking = i.Ranking
+                    Category = i.Category,
+                    Ranking = i.Ranking,
+                    Image = i.Image
                 })
                 .ToListAsync();
         }
 
-        public async Task<List<CategoryModel>> GetCategory(CategoryEnum categoryId)
+        public async Task<List<ProductCategoryModel>> GetProductCategory(CategoryEnum categoryId)
         {
             return await context.Product
                 .Where(p => p.Available == true && p.CategoryEnum == categoryId)
-                .Select(i => new CategoryModel()
+                .Select(i => new ProductCategoryModel()
                 {
                     ProductId = i.ProductId,
                     Name = i.Name,
                     Price = i.Price,
-                    CategoryId = i.CategoryEnum,
-                    Available = i.Available
+                    Category = i.Category,
+                    Available = i.Available,
+                    Image = i.Image
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<CategoriesModel>> GetCategories()
+        {
+            return await context.Category
+                .Select(i => new CategoriesModel()
+                {
+                    CategoryEnum = i.CategoryEnum,
+                    Description = i.Description
                 })
                 .ToListAsync();
         }
@@ -74,13 +89,14 @@ namespace SingleExperience.Services.ProductServices
              .Where(p => p.Available == true && p.ProductId == productId)
              .Select(i => new ProductSelectedModel()
              {
-                 CategoryId = i.CategoryEnum,
+                 Category = i.Category,
                  ProductId = i.ProductId,
                  Name = i.Name,
                  Amount = i.Amount,
                  Detail = i.Detail,
                  Price = i.Price,
-                 Rating = i.Rating
+                 Rating = i.Rating,
+                 Image = i.Image
              })
              .FirstOrDefaultAsync();
         }
@@ -98,7 +114,8 @@ namespace SingleExperience.Services.ProductServices
                 CategoryEnum = newProduct.CategoryId,
                 Ranking = newProduct.Ranking,
                 Available = newProduct.Available,
-                Rating = newProduct.Rating
+                Rating = newProduct.Rating,
+                Image = newProduct.Image
             };
 
             await context.Product.AddAsync(model);

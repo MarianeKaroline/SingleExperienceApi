@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SingleExperience.WebAPI.Controllers
 {
-    [Route("[controller]/client")]
+    [Route("[controller]")]
     [ApiController]
     public class ClientController : ControllerBase
     {
@@ -14,16 +14,16 @@ namespace SingleExperience.WebAPI.Controllers
 
         public ClientController(ClientService client) => this.client = client;
 
-        [HttpGet("creditcard")]
-        public async Task<List<ShowCardModel>> ShowCards()
+        [HttpGet("creditcard/{sessionId}")]
+        public async Task<List<ShowCardModel>> ShowCards(string sessionId)
         {
-            return await client.ShowCards();
+            return await client.ShowCards(sessionId);
         }
 
-        [HttpGet("address")]
-        public async Task<List<ShowAddressModel>> ShowAddresses()
+        [HttpGet("address/{sessionId}")]
+        public async Task<List<ShowAddressModel>> ShowAddresses(string sessionId)
         {
-            return await client.ShowAddresses();
+            return await client.ShowAddresses(sessionId);
         }
 
         [HttpPost("creditcard")]

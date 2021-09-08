@@ -18,7 +18,7 @@ namespace SingleExperience.Services.ClientServices
             contexts = context;
         }
        
-        public List<Address> GetAddress()
+        public List<Address> GetAddress(string sessionId)
         {
             return contexts.Address
                 .Select(i => new Address
@@ -31,14 +31,14 @@ namespace SingleExperience.Services.ClientServices
                     State = i.State,
                     Cpf = i.Cpf
                 })
-                .Where(i => i.Cpf == SessionId)
+                .Where(i => i.Cpf == sessionId)
                 .ToList();
         }
         
-        public List<CreditCard> GetCard()
+        public List<CreditCard> GetCard(string sessionId)
         {
             return contexts.CreditCard
-                    .Where(i => i.Cpf == SessionId)
+                    .Where(i => i.Cpf == sessionId)
                     .Select(i => new CreditCard
                     {
                         Number = i.Number,
@@ -50,10 +50,10 @@ namespace SingleExperience.Services.ClientServices
                     .ToList();
         }
 
-        public async Task<List<ShowCardModel>> ShowCards()
+        public async Task<List<ShowCardModel>> ShowCards(string sessionId)
         {
             return await context.CreditCard
-                .Where(i => i.Cpf == SessionId)
+                .Where(i => i.Cpf == sessionId)
                 .Select(i => new ShowCardModel
                 {
                     CardNumber = i.Number.ToString(),
@@ -63,13 +63,13 @@ namespace SingleExperience.Services.ClientServices
                 .ToListAsync();
         }
         
-        public async Task<List<ShowAddressModel>> ShowAddresses()
+        public async Task<List<ShowAddressModel>> ShowAddresses(string sessionId)
         {
-            var client = GetUser();
-            var listAddress = GetAddress();
+            var client = GetUser(sessionId);
+            var listAddress = GetAddress(sessionId);
 
             return await context.Address
-                .Where(i => i.Cpf == SessionId)
+                .Where(i => i.Cpf == sessionId)
                 .Select(i => new ShowAddressModel
                 {
                     ClientName = client.Name,
@@ -104,7 +104,7 @@ namespace SingleExperience.Services.ClientServices
        
         public async Task AddCard(CardModel card)
         {
-            var existCard = GetCard().FirstOrDefault(i => i.Number == card.CardNumber);
+            var existCard = GetCard(card.Cpf).FirstOrDefault(i => i.Number == card.CardNumber);
             var lines = new List<string>();
 
             if (existCard == null)
@@ -115,7 +115,7 @@ namespace SingleExperience.Services.ClientServices
                     Name = card.Name,
                     ShelfLife = card.ShelfLife,
                     Cvv = card.Cvv,
-                    Cpf = SessionId
+                    Cpf = card.Cpf
                 };
 
                 await contexts.CreditCard.AddAsync(creditCard);

@@ -1,4 +1,4 @@
-﻿using SingleExperience.Domain.Enums;
+﻿using SingleExperience.Domain.Entities;
 
 namespace SingleExperience.Repository.Services.ProductServices.Models
 {
@@ -7,9 +7,10 @@ namespace SingleExperience.Repository.Services.ProductServices.Models
         public int ProductId { get; set; }
         public decimal Rating { get; set; }
         public string Name { get; set; }
-        public CategoryEnum CategoryId { get; set; }
+        public Category Category { get; set; }
         public decimal Price { get; set; }
         public int Amount { get; set; }
         public string Detail { get; set; }
+        public string Image { get; set; }
     }
 }

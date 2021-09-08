@@ -21,10 +21,10 @@ namespace SingleExperience.WebAPI.Controllers
             return await employee.Get();
         }
 
-        [HttpGet("access")]
-        public async Task<AccessEmployeeModel> GetAccess()
+        [HttpGet("access/{sessionId}")]
+        public async Task<AccessEmployeeModel> GetAccess(string sessionId)
         {
-            return await employee.GetAccess();
+            return await employee.GetAccess(sessionId);
         }
 
         [HttpPost("signup")]

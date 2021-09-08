@@ -29,15 +29,21 @@ namespace SingleExperience.WebAPI.Controllers
         }
 
         [HttpGet("category/{categoryId}")]
-        public async Task<List<CategoryModel>> GetCategory(CategoryEnum categoryId)
+        public async Task<List<ProductCategoryModel>> GetProductCategory(CategoryEnum categoryId)
         {
-            return await product.GetCategory(categoryId);
+            return await product.GetProductCategory(categoryId);
         }
 
         [HttpGet("{productId}")]
         public async Task<ProductSelectedModel> GetSelected(int productId)
         {
             return await product.GetSelected(productId);
+        }
+
+        [HttpGet("category")]
+        public async Task<List<CategoriesModel>> GetCategory()
+        {
+            return await product.GetCategories();
         }
 
         [HttpPost("newproduct")]

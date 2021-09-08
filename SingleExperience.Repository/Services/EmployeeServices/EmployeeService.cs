@@ -34,10 +34,10 @@ namespace SingleExperience.Services.EmployeeServices
                      .ToListAsync();
         }
 
-        public async Task<AccessEmployeeModel> GetAccess()
+        public async Task<AccessEmployeeModel> GetAccess(string sessionId)
         {
             return await contexts.AccessEmployee
-                .Where(i => i.Cpf == SessionId)
+                .Where(i => i.Cpf == sessionId)
                 .Select(i => new AccessEmployeeModel
                 {
                     AccessInventory = i.AccessInventory,

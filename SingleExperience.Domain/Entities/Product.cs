@@ -22,5 +22,6 @@ namespace SingleExperience.Domain.Entities
         public int Ranking { get; set; }
         public bool? Available { get; set; }
         public decimal Rating { get; set; }
+        public string Image { get; set; }
     }
 }

@@ -13,6 +13,7 @@ namespace SingleExperience.Repository.Services.ProductServices.Models
         public int Ranking { get; set; }
         public bool Available { get; set; }
         public decimal Rating { get; set; }
+        public string Image { get; set; }
 
         public void Validator()
         {

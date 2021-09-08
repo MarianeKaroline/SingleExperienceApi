@@ -8,6 +8,7 @@ namespace SingleExperience.Repository.Services.CartServices.Models
         public PaymentEnum PaymentId { get; set; }
         public int CreditCardId { get; set; }
         public int AddressId { get; set; }
+        public string SessionId { get; set; }
 
         public void Validator()
         {

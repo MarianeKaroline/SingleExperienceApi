@@ -24,28 +24,10 @@ namespace SingleExperience.Services.UserServices
             cartService = new CartService(context);
         }
 
-        public async Task<string> GetIP()
-        {
-            Itens = new List<ProductCart>();
-            var host = await Dns.GetHostEntryAsync(Dns.GetHostName());
-            string session = "";
-
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    session = ip.ToString().Replace(".", "");
-                }
-            }
-
-            SessionId = session;
-            return session;
-        }
-
-        public User GetUser()
+        public User GetUser(string sessionId)
         {
             return context.Enjoyer
-                .FirstOrDefault(i => i.Cpf == SessionId);
+                .FirstOrDefault(i => i.Cpf == sessionId);
         }
 
         public async Task SignUp(SignUpModel user)
@@ -83,10 +65,9 @@ namespace SingleExperience.Services.UserServices
 
             if (user != null)
             {
-                SessionId = user.Cpf;
                 if (Itens != null && Itens.Count > 0)
                 {
-                    cartService.PassProducts(); 
+                    cartService.PassProducts(user.Cpf); 
                 }
             }
 
@@ -95,7 +76,7 @@ namespace SingleExperience.Services.UserServices
 
         public async Task<string> SignOut()
         {
-            return await GetIP();
+            return "";
         }
     }
 }

@@ -80,7 +80,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
             return listProducts;
         }
 
-        public List<Bought> Get()
+        public List<Bought> Get(string sessionId)
         {
             //Irá procurar a compra pelo cpf do cliente
             return context.Bought
@@ -95,7 +95,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     StatusBoughtEnum = p.StatusBoughtEnum,
                     DateBought = p.DateBought
                 })
-                .Where(p => p.Cpf == SessionId)
+                .Where(p => p.Cpf == sessionId)
                 .ToList();
         }
 
@@ -135,11 +135,11 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     {
                         bought = new Bought()
                         {
-                            TotalPrice = cartService.Total().Result.TotalPrice,
+                            TotalPrice = cartService.Total(addBought.SessionId).Result.TotalPrice,
                             AddressId = addBought.AddressId,
                             PaymentEnum = addBought.PaymentId,
-                            CreditCardId = clientService.GetCard().Where(p => p.CreditCardId == addBought.CreditCardId).FirstOrDefault().CreditCardId,
-                            Cpf = SessionId,
+                            CreditCardId = clientService.GetCard(addBought.SessionId).Where(p => p.CreditCardId == addBought.CreditCardId).FirstOrDefault().CreditCardId,
+                            Cpf = addBought.SessionId,
                             StatusBoughtEnum = statusBought,
                             DateBought = DateTime.Now
                         };
@@ -148,10 +148,10 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     {
                         bought = new Bought()
                         {
-                            TotalPrice = cartService.Total().Result.TotalPrice,
+                            TotalPrice = cartService.Total(addBought.SessionId).Result.TotalPrice,
                             AddressId = addBought.AddressId,
                             PaymentEnum = addBought.PaymentId,
-                            Cpf = SessionId,
+                            Cpf = addBought.SessionId,
                             StatusBoughtEnum = statusBought,
                             DateBought = DateTime.Now
                         };
@@ -160,7 +160,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     await context.Bought.AddAsync(bought);
                     await context.SaveChangesAsync();
 
-                    AddProduct();
+                    AddProduct(addBought.SessionId);
 
                     transaction.Commit();
                 }
@@ -172,9 +172,9 @@ namespace SingleExperience.Repository.Services.BoughtServices
             }
         }
 
-        public void AddProduct()
+        public void AddProduct(string sessionId)
         {
-            var getCart = cartService.Get();
+            var getCart = cartService.Get(sessionId);
             var listItens = new List<ProductCart>();
 
             //Adiciona na lista os produtos que estão ativos no carrinho
@@ -214,9 +214,9 @@ namespace SingleExperience.Repository.Services.BoughtServices
         public async Task<PreviewBoughtModel> Preview(BuyModel bought)
         {
             var preview = new PreviewBoughtModel();
-            var client = clientService.GetUser();
-            var address = clientService.GetAddress().FirstOrDefault(i => i.AddressId == bought.AddressId);
-            var card = clientService.GetCard();
+            var client = clientService.GetUser(bought.SessionId);
+            var address = clientService.GetAddress(bought.SessionId).FirstOrDefault(i => i.AddressId == bought.AddressId);
+            var card = clientService.GetCard(bought.SessionId);
 
             preview.FullName = client.Name;
             preview.Phone = client.Phone;
@@ -243,19 +243,19 @@ namespace SingleExperience.Repository.Services.BoughtServices
                 preview.Pix = Guid.NewGuid().ToString();
             }
 
-            preview.Itens = await cartService.ShowProducts();
+            preview.Itens = await cartService.ShowProducts(bought.SessionId);
 
             return preview;
         }
 
-        public async Task<List<BoughtModel>> Show()
+        public async Task<List<BoughtModel>> Show(string sessionId)
         {
-            var client = clientService.GetUser();
-            var address = clientService.GetAddress();
-            var card = clientService.GetCard();
+            var client = clientService.GetUser(sessionId);
+            var address = clientService.GetAddress(sessionId);
+            var card = clientService.GetCard(sessionId);
             var listProducts = new List<BoughtModel>();
 
-            var listBought = Get();
+            var listBought = Get(sessionId);
 
             //Listar as compras do cliente
             if (listBought.Count > 0)

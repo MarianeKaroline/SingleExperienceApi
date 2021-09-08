@@ -28,10 +28,10 @@ namespace SingleExperience.WebAPI.Controllers
             return await bought.Preview(boughtModel);
         }
 
-        [HttpGet("boughts")]
-        public async Task<List<BoughtModel>> Show()
+        [HttpGet("boughts/{sessionId}")]
+        public async Task<List<BoughtModel>> Show(string sessionId)
         {
-            return await bought.Show();
+            return await bought.Show(sessionId);
         }
 
         [HttpGet("{status}")]

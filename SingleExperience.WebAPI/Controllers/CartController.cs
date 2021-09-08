@@ -14,34 +14,34 @@ namespace SingleExperience.WebAPI.Controllers
 
         public CartController(CartService cart) => this.cart = cart;
 
-        [HttpGet]
-        public async Task<List<ProductCartModel>> ShowProducts()
-        {
-            return await cart.ShowProducts();
+        [HttpGet("{sessionId}")]
+        public async Task<List<ProductCartModel>> ShowProducts(string sessionId)
+        {           
+            return await cart.ShowProducts(sessionId);
         }
 
-        [HttpGet("total")]
-        public async Task<TotalCartModel> Total()
+        [HttpGet("total/{sessionId}")]
+        public async Task<TotalCartModel> Total(string sessionId)
         {
-            return await cart.Total();
+            return await cart.Total(sessionId);
         }
 
-        [HttpGet("edit/status")]
-        public async Task<bool> EditStatus([FromBody] List<BuyProductModel> products)
+        [HttpGet("edit/status/{sessionId}")]
+        public async Task<bool> EditStatus([FromBody] List<BuyProductModel> products, string sessionId)
         {
-            return await cart.CallEditStatus(products);
+            return await cart.CallEditStatus(products, sessionId);
         }
 
-        [HttpPost("add/{productId}")]
-        public async Task AddProduct(int productId)
+        [HttpPost("{productId}/{sessionId}")]
+        public async Task<bool> AddProduct(int productId, string sessionId)
         {
-            await cart.AddProduct(productId);
+            return await cart.AddProduct(productId, sessionId);
         }
 
-        [HttpDelete("{productId}")]
-        public async Task RemoveProduct(int productId)
+        [HttpDelete("{productId}/{sessionId}")]
+        public async Task RemoveProduct(int productId, string sessionId)
         {
-            await cart.RemoveProduct(productId);
+            await cart.RemoveProduct(productId, sessionId);
         }
     }
 }
