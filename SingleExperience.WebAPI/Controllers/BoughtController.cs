@@ -20,13 +20,7 @@ namespace SingleExperience.WebAPI.Controllers
         public async Task<List<BoughtModel>> GetAll()
         {
             return await bought.GetAll();
-        }
-
-        [HttpGet("preview")]
-        public async Task<PreviewBoughtModel> Preview([FromBody] BuyModel boughtModel)
-        {
-            return await bought.Preview(boughtModel);
-        }
+        }        
 
         [HttpGet("boughts/{sessionId}")]
         public async Task<List<BoughtModel>> Show(string sessionId)
@@ -38,6 +32,12 @@ namespace SingleExperience.WebAPI.Controllers
         public async Task<List<BoughtModel>> GetStatus(StatusBoughtEnum status)
         {
             return await bought.GetStatus(status);
+        }
+
+        [HttpPost("preview")]
+        public async Task<PreviewBoughtModel> Preview([FromBody] BuyModel boughtModel)
+        {
+            return await bought.Preview(boughtModel);
         }
 
         [HttpPost("addbought")]

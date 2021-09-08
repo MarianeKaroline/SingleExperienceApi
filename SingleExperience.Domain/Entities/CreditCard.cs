@@ -10,7 +10,7 @@ namespace SingleExperience.Domain.Entities
         public int CreditCardId { get; set; }
         public string Number { get; set; }
         public string Name { get; set; }
-        public DateTime ShelfLife { get; set; }
+        public string ShelfLife { get; set; }
         public string Cvv { get; set; }
 
         //FK - Cpf

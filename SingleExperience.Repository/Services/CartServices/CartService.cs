@@ -53,26 +53,38 @@ namespace SingleExperience.Services.CartServices
                 .ToList();
         }
 
+        public async Task<List<PaymentModel>> Payment()
+        {
+            return await context.Payment
+                .Select(i => new PaymentModel()
+                {
+                    PaymentEnum = i.PaymentEnum,
+                    Description = i.Description
+                })
+                .ToListAsync();
+        }
+
         public async Task<List<ProductCartModel>> ShowProducts(string sessionId)
         {
             var prod = new List<ProductCartModel>();
 
             if (sessionId.Length == 11)
             {
-                prod = await context.ProductCart
-                    .Where(p => p.StatusProductEnum == StatusProductEnum.Active && p.CartId == Get(sessionId).CartId)
-                    .Select(j => new ProductCartModel()
-                    {
-                        ProductId = j.ProductId,
-                        Name = j.Product.Name,
-                        CategoryId = j.Product.CategoryEnum,
-                        Category = j.Product.Category,
-                        StatusId = j.StatusProductEnum,
-                        Amount = j.Amount,
-                        Price = j.Product.Price,
-                        Image = j.Product.Image
-                    })
-                    .ToListAsync();
+                if (Get(sessionId) != null)
+                    prod = await context.ProductCart
+                        .Where(p => p.StatusProductEnum == StatusProductEnum.Active && p.CartId == Get(sessionId).CartId)
+                        .Select(j => new ProductCartModel()
+                        {
+                            ProductId = j.ProductId,
+                            Name = j.Product.Name,
+                            CategoryId = j.Product.CategoryEnum,
+                            Category = j.Product.Category,
+                            StatusId = j.StatusProductEnum,
+                            Amount = j.Amount,
+                            Price = j.Product.Price,
+                            Image = j.Product.Image
+                        })
+                        .ToListAsync();
             }
             else
             {
@@ -90,6 +102,9 @@ namespace SingleExperience.Services.CartServices
                         })
                         .ToList();
             }
+
+            if (prod == null)
+                prod = new List<ProductCartModel>();
 
             return prod;
         }

@@ -32,6 +32,12 @@ namespace SingleExperience.WebAPI.Controllers
             return await cart.CallEditStatus(products, sessionId);
         }
 
+        [HttpGet("payment")]
+        public async Task<List<PaymentModel>> Payment()
+        {
+            return await cart.Payment();
+        }
+
         [HttpPost("{productId}/{sessionId}")]
         public async Task<bool> AddProduct(int productId, string sessionId)
         {

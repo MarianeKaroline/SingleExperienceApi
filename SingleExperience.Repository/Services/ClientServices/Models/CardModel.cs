@@ -7,7 +7,7 @@ namespace SingleExperience.Repository.Services.ClientServices.Models
     {
         public string CardNumber { get; set; }
         public string Name { get; set; }
-        public DateTime ShelfLife { get; set; }
+        public string ShelfLife { get; set; }
         public string Cvv { get; set; }
         public string Cpf { get; set; }
 
