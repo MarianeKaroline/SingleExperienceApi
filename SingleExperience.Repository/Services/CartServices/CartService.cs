@@ -154,17 +154,17 @@ namespace SingleExperience.Services.CartServices
             {
                 listItensCart.ForEach(j =>
                 {
-                    Itens.ForEach(async i =>
+                    Itens.ForEach(i =>
                     {
                         if (j.ProductId == i.ProductId && j.StatusProductEnum != StatusProductEnum.Active)
                         {
-                            await EditStatus(j.ProductId, StatusProductEnum.Active, sessionId);
-                            await EditAmount(j.ProductId, i.Amount, sessionId);
+                            EditStatus(j.ProductId, StatusProductEnum.Active, sessionId);
+                            EditAmount(j.ProductId, i.Amount, sessionId);
                             exist = true;
                         }
                         else if (j.ProductId == i.ProductId)
                         {
-                            await EditAmount(j.ProductId, i.Amount + 1, sessionId);
+                            EditAmount(j.ProductId, i.Amount + 1, sessionId);
                             exist = true;
                         }
                     });
@@ -172,17 +172,17 @@ namespace SingleExperience.Services.CartServices
             }
             else
             {
-                listItensCart.ForEach(async j =>
+                listItensCart.ForEach(j =>
                 {
                     if (j.ProductId == productId && j.StatusProductEnum != StatusProductEnum.Active)
                     {
-                        await EditStatus(productId, StatusProductEnum.Active, sessionId);
+                        EditStatus(productId, StatusProductEnum.Active, sessionId);
                         exist = true;
                     }
                     else if (j.ProductId == productId)
                     {
                         sum += j.Amount;
-                        await EditAmount(productId, sum, sessionId);
+                         EditAmount(productId, sum, sessionId);
                         exist = true;
                     }
                 });
@@ -305,12 +305,12 @@ namespace SingleExperience.Services.CartServices
                 if (getItem.Amount > 1 && count == 0)
                 {
                     sum = getItem.Amount - 1;
-                    await EditAmount(productId, sum, sessionId);
+                    EditAmount(productId, sum, sessionId);
                     count++;
                 }
                 else if (getItem.Amount == 1)
                 {
-                    await EditStatus(productId, StatusProductEnum.Deleted, sessionId);
+                    EditStatus(productId, StatusProductEnum.Deleted, sessionId);
                 }
             }
             else
@@ -335,9 +335,10 @@ namespace SingleExperience.Services.CartServices
             }
         }
 
-        public async Task EditStatus(int productId, StatusProductEnum status, string sessionId)
+        public void EditStatus(int productId, StatusProductEnum status, string sessionId)
         {
-            var getItem = GetProducts(Get(sessionId).CartId).FirstOrDefault(i => i.ProductId == productId);
+            var cartId = context.Cart.FirstOrDefault(i => i.Cpf == sessionId).CartId;
+            var getItem = context.ProductCart.FirstOrDefault(i => i.ProductId == productId && i.CartId == cartId);
             var auxAmount = 0;
 
             if (status == StatusProductEnum.Active)
@@ -349,10 +350,10 @@ namespace SingleExperience.Services.CartServices
             getItem.StatusProductEnum = status;
 
             context.ProductCart.Update(getItem);
-            await context.SaveChangesAsync();
+            context.SaveChanges();
         }
 
-        public async Task EditAmount(int productId, int sub, string sessionId)
+        public void EditAmount(int productId, int sub, string sessionId)
         {
             var getItem = GetProducts(Get(sessionId).CartId).FirstOrDefault(i => i.ProductId == productId);
             var lines = new List<string>();
@@ -360,16 +361,16 @@ namespace SingleExperience.Services.CartServices
             getItem.Amount = sub;
 
             context.ProductCart.Update(getItem);
-            await context.SaveChangesAsync();
+            context.SaveChanges();
         }
 
-        public async Task<bool> CallEditStatus(List<BuyProductModel> products, string sessionId)
+        public bool CallEditStatus(List<BuyProductModel> products, string sessionId)
         {
             var buy = false;
 
-            products.ForEach(async i =>
+            products.ForEach(i =>
             {
-                await EditStatus(i.ProductId, i.Status, sessionId);
+                EditStatus(i.ProductId, i.Status, sessionId);
                 buy = true;
             });
 

@@ -117,6 +117,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
         public async Task Add(AddBoughtModel addBought)
         {
             addBought.Validator();
+            int boughtId;
 
             StatusBoughtEnum statusBought = 0;
             Bought bought;
@@ -138,7 +139,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                             TotalPrice = cartService.Total(addBought.SessionId).Result.TotalPrice,
                             AddressId = addBought.AddressId,
                             PaymentEnum = addBought.PaymentId,
-                            CreditCardId = clientService.GetCard(addBought.SessionId).Where(p => p.CreditCardId == addBought.CreditCardId).FirstOrDefault().CreditCardId,
+                            CreditCardId = addBought.CreditCardId,
                             Cpf = addBought.SessionId,
                             StatusBoughtEnum = statusBought,
                             DateBought = DateTime.Now
@@ -160,7 +161,9 @@ namespace SingleExperience.Repository.Services.BoughtServices
                     await context.Bought.AddAsync(bought);
                     await context.SaveChangesAsync();
 
-                    AddProduct(addBought.SessionId);
+                    boughtId = bought.BoughtId;
+
+                    AddProduct(addBought.SessionId, boughtId);
 
                     transaction.Commit();
                 }
@@ -172,30 +175,34 @@ namespace SingleExperience.Repository.Services.BoughtServices
             }
         }
 
-        public void AddProduct(string sessionId)
+        public void AddProduct(string sessionId, int boughtId)
         {
             var getCart = cartService.Get(sessionId);
             var listItens = new List<ProductCart>();
+            var buyProduct = new List<BuyProductModel>();
 
             //Adiciona na lista os produtos que estão ativos no carrinho
-            listItens.Add(cartService.GetProducts(getCart.CartId)
-                .Where(i => i.StatusProductEnum == StatusProductEnum.Active)
-                .FirstOrDefault());
+            listItens = cartService.GetProducts(getCart.CartId)
+                            .Where(i => i.StatusProductEnum == StatusProductEnum.Active)
+                            .ToList();
 
             listItens.ForEach(i =>
             {
+                var model = new BuyProductModel();
                 //Adiciona itens do carrinho na tabela ProductBought
                 var ProductBought = new ProductBought()
                 {
                     ProductId = i.ProductId,
                     Amount = i.Amount,
-                    BoughtId = context.Bought.OrderByDescending(j => j.BoughtId).FirstOrDefault().BoughtId
+                    BoughtId = boughtId
                 };
+                cartService.EditStatus(i.ProductId, StatusProductEnum.Bought, sessionId);
 
                 context.ProductBought.Add(ProductBought);
             });
 
             context.SaveChanges();
+
         }
 
         public async Task UpdateStatus(int boughtId, StatusBoughtEnum status)
