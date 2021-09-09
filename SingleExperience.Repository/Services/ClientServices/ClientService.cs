@@ -41,6 +41,7 @@ namespace SingleExperience.Services.ClientServices
                     .Where(i => i.Cpf == sessionId)
                     .Select(i => new CreditCard
                     {
+                        CreditCardId = i.CreditCardId,
                         Number = i.Number,
                         Name = i.Name,
                         ShelfLife = i.ShelfLife,
@@ -56,7 +57,8 @@ namespace SingleExperience.Services.ClientServices
                 .Where(i => i.Cpf == sessionId)
                 .Select(i => new ShowCardModel
                 {
-                    CardNumber = i.Number.ToString(),
+                    CreditCardId = i.CreditCardId,
+                    CardNumber = i.Number,
                     Name = i.Name,
                     ShelfLife = i.ShelfLife
                 })
@@ -99,10 +101,10 @@ namespace SingleExperience.Services.ClientServices
             await contexts.Address.AddAsync(address);
             await contexts.SaveChangesAsync();
 
-            return contexts.Address.FirstOrDefault().AddressId;
+            return address.AddressId;
         }
        
-        public async Task AddCard(CardModel card)
+        public async Task<int> AddCard(CardModel card)
         {
             var existCard = GetCard(card.Cpf).FirstOrDefault(i => i.Number == card.CardNumber);
             var lines = new List<string>();
@@ -120,7 +122,11 @@ namespace SingleExperience.Services.ClientServices
 
                 await contexts.CreditCard.AddAsync(creditCard);
                 await contexts.SaveChangesAsync();
+
+                return creditCard.CreditCardId;
             }
+
+            return 0;
         }
 
         public async Task<bool> Signup(SignUpModel client)

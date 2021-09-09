@@ -27,9 +27,9 @@ namespace SingleExperience.WebAPI.Controllers
         }
 
         [HttpPost("creditcard")]
-        public async Task AddCard([FromBody] CardModel card)
+        public async Task<int> AddCard([FromBody] CardModel card)
         {
-            await client.AddCard(card);
+            return await client.AddCard(card);
         }
 
         [HttpPost("address")]
