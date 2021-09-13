@@ -20,12 +20,6 @@ namespace SingleExperience.WebAPI.Controllers
             return await cart.ShowProducts(sessionId);
         }
 
-        [HttpGet("total/{sessionId}")]
-        public async Task<TotalCartModel> Total(string sessionId)
-        {
-            return await cart.Total(sessionId);
-        }
-
         [HttpGet("payment")]
         public async Task<List<PaymentModel>> Payment()
         {

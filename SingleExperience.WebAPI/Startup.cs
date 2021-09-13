@@ -6,7 +6,6 @@ using SingleExperience.Services.ClientServices;
 using SingleExperience.Services.CartServices;
 using SingleExperience.Services.UserServices;
 using Microsoft.Extensions.Configuration;
-using SingleExperience.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -62,7 +61,6 @@ namespace SingleExperience.WebAPI
                 options.UseSqlServer(Configuration.GetConnectionString("Defaultconnection"));
             });
 
-            services.AddScoped<Session>();
             services.AddScoped<ProductService>();
             services.AddScoped<BoughtService>();
             services.AddScoped<CartService>();

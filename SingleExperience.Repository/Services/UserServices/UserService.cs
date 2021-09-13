@@ -2,7 +2,6 @@
 using SingleExperience.Repository.Services.UserServices.Models;
 using SingleExperience.Services.CartServices;
 using SingleExperience.Domain.Entities;
-using SingleExperience.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using SingleExperience.Domain;
 using System.Collections.Generic;
@@ -13,7 +12,7 @@ using System.Net;
 
 namespace SingleExperience.Services.UserServices
 {
-    public class UserService : Session
+    public class UserService
     {
         protected readonly Context context;
         private CartService cartService;
@@ -61,15 +60,6 @@ namespace SingleExperience.Services.UserServices
                     Employee = i.Employee
                 })
                 .FirstOrDefaultAsync();
-
-
-            if (user != null)
-            {
-                if (Itens != null && Itens.Count > 0)
-                {
-                    cartService.PassProducts(user.Cpf); 
-                }
-            }
 
             return user;
         }

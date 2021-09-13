@@ -4,7 +4,6 @@ using SingleExperience.Services.ProductServices;
 using SingleExperience.Services.ClientServices;
 using SingleExperience.Services.CartServices;
 using SingleExperience.Domain.Entities;
-using SingleExperience.Domain.Common;
 using SingleExperience.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -15,7 +14,7 @@ using System;
 
 namespace SingleExperience.Repository.Services.BoughtServices
 {
-    public class BoughtService : Session
+    public class BoughtService
     {
         protected readonly Context context;
         private ClientService clientService;
