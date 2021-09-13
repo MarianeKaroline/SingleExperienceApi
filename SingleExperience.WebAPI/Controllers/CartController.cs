@@ -32,10 +32,22 @@ namespace SingleExperience.WebAPI.Controllers
             return await cart.AddProduct(productId, sessionId);
         }
 
+        [HttpPost("{productId}/{amount}/{sessionId}")]
+        public async Task<List<ProductCartModel>> PassItems(int productId, int amount, string sessionId)
+        {
+            return await cart.PassItems(productId, amount, sessionId);
+        }
+
         [HttpDelete("{productId}/{sessionId}")]
         public async Task RemoveProduct(int productId, string sessionId)
         {
             await cart.RemoveProduct(productId, sessionId);
+        }
+
+        [HttpDelete("delete/{productId}/{sessionId}")]
+        public async Task RemoveProducts(int productId, string sessionId)
+        {
+            await cart.RemoveProducts(productId, sessionId);
         }
     }
 }

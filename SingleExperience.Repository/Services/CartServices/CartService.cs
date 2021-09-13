@@ -199,8 +199,19 @@ namespace SingleExperience.Services.CartServices
             {
                 EditStatus(productId, StatusProductEnum.Deleted, sessionId);
             }
+        }
 
+        public async Task RemoveProducts(int productId, string sessionId)
+        {
+            var cart = await context.Cart.FirstOrDefaultAsync(i => i.Cpf == sessionId);
+            var getItem = await context.ProductCart.FirstOrDefaultAsync(i => i.ProductId == productId && i.CartId == cart.CartId);
 
+            getItem.Amount = 1;
+            getItem.StatusProductEnum = StatusProductEnum.Deleted;
+
+            context.ProductCart.Update(getItem);
+            await context.SaveChangesAsync();
+            
         }
 
         public void EditStatus(int productId, StatusProductEnum status, string sessionId)
@@ -230,6 +241,46 @@ namespace SingleExperience.Services.CartServices
 
             context.ProductCart.Update(getItem);
             context.SaveChanges();
+        }
+
+        public async Task<List<ProductCartModel>> PassItems(int productId, int amount, string sessionId)
+        {
+            var item = await context.ProductCart.FirstOrDefaultAsync(p => p.ProductId == productId);
+
+            if (item == null)
+            {
+                var cartId = Add(sessionId);
+                var exist = ExistProduct(productId, sessionId);
+
+                if (!exist)
+                {
+                    var product = new ProductCart()
+                    {
+                        ProductId = productId,
+                        CartId = cartId,
+                        Amount = amount,
+                        StatusProductEnum = StatusProductEnum.Active
+                    };
+
+                    await context.ProductCart.AddAsync(product);
+                    await context.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                if (item.ProductId == productId && item.StatusProductEnum != StatusProductEnum.Active)
+                {
+                    EditStatus(productId, StatusProductEnum.Active, sessionId);
+                    EditAmount(productId, amount, sessionId);
+                }
+                else if (item.ProductId == productId)
+                {
+                    amount += item.Amount;
+                    EditAmount(productId, amount, sessionId);
+                }
+            }
+
+            return await ShowProducts(sessionId);
         }
 
         public bool CallEditStatus(List<BuyProductModel> products, string sessionId)

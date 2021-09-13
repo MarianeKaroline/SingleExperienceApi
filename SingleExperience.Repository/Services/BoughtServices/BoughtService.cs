@@ -69,6 +69,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                         ProductName = j.Product.Name,
                         Amount = j.Amount,
                         Price = j.Product.Price,
+                        Image = context.Product.FirstOrDefault(p => p.ProductId == j.ProductId).Image,
                         BoughtId = j.BoughtId
                     })
                     .ToList();
@@ -298,6 +299,7 @@ namespace SingleExperience.Repository.Services.BoughtServices
                             ProductName = j.Product.Name,
                             Amount = j.Amount,
                             Price = j.Product.Price,
+                            Image = context.Product.FirstOrDefault(p => p.ProductId == j.ProductId).Image,
                             BoughtId = j.BoughtId
                         })
                         .ToList();
