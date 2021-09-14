@@ -234,7 +234,10 @@ namespace SingleExperience.Services.CartServices
 
         public void EditAmount(int productId, int sub, string sessionId)
         {
-            var getItem = GetProducts(Get(sessionId).CartId).FirstOrDefault(i => i.ProductId == productId);
+            var cartId = context.Cart.FirstOrDefault(i => i.Cpf == sessionId).CartId;
+            var getItem = context.ProductCart.FirstOrDefault(i => i.ProductId == productId && i.CartId == cartId);
+
+
             var lines = new List<string>();
 
             getItem.Amount = sub;
