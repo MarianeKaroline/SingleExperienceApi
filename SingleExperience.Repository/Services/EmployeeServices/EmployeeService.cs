@@ -46,7 +46,7 @@ namespace SingleExperience.Services.EmployeeServices
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<bool> Singup(SignUpModel employee)
+        public async Task<bool> Register(SignUpModel employee)
         {
             employee.Validator();
 

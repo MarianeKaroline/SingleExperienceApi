@@ -27,10 +27,10 @@ namespace SingleExperience.WebAPI.Controllers
             return await employee.GetAccess(sessionId);
         }
 
-        [HttpPost("signup")]
-        public async Task<bool> Signup([FromBody] SignUpModel employeeModel)
+        [HttpPost("register")]
+        public async Task<bool> Register([FromBody] SignUpModel employeeModel)
         {
-            return await employee.Singup(employeeModel);
+            return await employee.Register(employeeModel);
         }
     }
 }
