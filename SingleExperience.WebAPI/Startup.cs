@@ -11,9 +11,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using SingleExperience.Domain;
+using SingleExperience.Repository.Services.EmailServices.Models;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using SingleExperience.Repository.Services.EmailServices;
 
 namespace SingleExperience.WebAPI
 {
@@ -60,6 +62,10 @@ namespace SingleExperience.WebAPI
             {
                 options.UseSqlServer(Configuration.GetConnectionString("Defaultconnection"));
             });
+
+            var emailConfig = Configuration
+                .GetSection("EmailConfiguration")
+                .Get<EmailModel>();
 
             services.AddScoped<ProductService>();
             services.AddScoped<BoughtService>();
