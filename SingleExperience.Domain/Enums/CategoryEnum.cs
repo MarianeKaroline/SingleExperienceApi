@@ -2,10 +2,10 @@
 {
     public enum CategoryEnum
     {
-        Acessorio = 1,
-        Celular = 2,
-        Computador = 3,
-        Notebook = 4,
-        Tablets = 5
+        Accessorie = 1,
+        Cellphone = 2,
+        Computer = 3,
+        Laptop = 4,
+        Tablet = 5
     }
 }

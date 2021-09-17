@@ -178,7 +178,7 @@ namespace SingleExperience.Services.CartServices
             return true;
         }
 
-        public async Task RemoveProduct(int productId, string sessionId)
+        public async Task<bool> RemoveProduct(int productId, string sessionId)
         {
             var getItem = new ProductCart();
             var getCart = Get(sessionId);
@@ -199,9 +199,11 @@ namespace SingleExperience.Services.CartServices
             {
                 EditStatus(productId, StatusProductEnum.Deleted, sessionId);
             }
+
+            return true;
         }
 
-        public async Task RemoveProducts(int productId, string sessionId)
+        public async Task<bool> RemoveProducts(int productId, string sessionId)
         {
             var cart = await context.Cart.FirstOrDefaultAsync(i => i.Cpf == sessionId);
             var getItem = await context.ProductCart.FirstOrDefaultAsync(i => i.ProductId == productId && i.CartId == cart.CartId);
@@ -211,7 +213,8 @@ namespace SingleExperience.Services.CartServices
 
             context.ProductCart.Update(getItem);
             await context.SaveChangesAsync();
-            
+
+            return true;
         }
 
         public void EditStatus(int productId, StatusProductEnum status, string sessionId)

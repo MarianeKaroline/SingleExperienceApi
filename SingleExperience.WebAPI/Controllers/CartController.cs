@@ -39,15 +39,15 @@ namespace SingleExperience.WebAPI.Controllers
         }
 
         [HttpDelete("{productId}/{sessionId}")]
-        public async Task RemoveProduct(int productId, string sessionId)
+        public async Task<bool> RemoveProduct(int productId, string sessionId)
         {
-            await cart.RemoveProduct(productId, sessionId);
+            return await cart.RemoveProduct(productId, sessionId);
         }
 
         [HttpDelete("delete/{productId}/{sessionId}")]
-        public async Task RemoveProducts(int productId, string sessionId)
+        public async Task<bool> RemoveProducts(int productId, string sessionId)
         {
-            await cart.RemoveProducts(productId, sessionId);
+            return await cart.RemoveProducts(productId, sessionId);
         }
     }
 }
