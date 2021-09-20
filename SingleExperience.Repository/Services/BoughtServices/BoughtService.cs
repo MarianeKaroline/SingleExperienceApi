@@ -205,9 +205,10 @@ namespace SingleExperience.Repository.Services.BoughtServices
 
         }
 
-        public async Task UpdateStatus(int boughtId, StatusBoughtEnum status)
+        public async Task<StatusBoughtEnum> UpdateStatus(int boughtId, StatusBoughtEnum status)
         {
             var getBought = await context.Bought.FirstOrDefaultAsync(i => i.BoughtId == boughtId);
+            var statusBought = getBought.StatusBoughtEnum;
 
             getBought.StatusBoughtEnum = status;
 
@@ -216,7 +217,12 @@ namespace SingleExperience.Repository.Services.BoughtServices
 
             if (status == StatusBoughtEnum.Confirmado)
                 productService.Confirm(boughtId);
-        }
+
+            if (getBought.StatusBoughtEnum == statusBought)
+                return getBought.StatusBoughtEnum;
+
+            return getBought.StatusBoughtEnum;
+        }   
 
         public async Task<PreviewBoughtModel> Preview(BuyModel bought)
         {

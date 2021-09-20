@@ -47,9 +47,9 @@ namespace SingleExperience.WebAPI.Controllers
         }
 
         [HttpPut("{boughtId}/{status}")]
-        public async Task UdateStatus(int boughtId, StatusBoughtEnum status)
+        public async Task<StatusBoughtEnum> UdateStatus(int boughtId, StatusBoughtEnum status)
         {
-            await bought.UpdateStatus(boughtId, status);
+            return await bought.UpdateStatus(boughtId, status);
         }
     }
 }

@@ -135,7 +135,7 @@ namespace SingleExperience.Services.ProductServices
                     .FirstOrDefault();
 
                 product.Amount -= j.Amount;
-                product.Ranking += j.Amount;
+                product.Ranking += 1;
 
                 context.Product.Update(product);
             });
@@ -159,14 +159,20 @@ namespace SingleExperience.Services.ProductServices
             return true;
         }
 
-        public async Task Rating(int productId, decimal rating)
+        public async Task<bool> Rating(int productId, decimal rating)
         {
             var product = context.Product.FirstOrDefault(i => i.ProductId == productId);
+            var rate = product.Rating;
 
             product.Rating = (rating + product.Rating) / product.Ranking;
 
             context.Product.Update(product);
             await context.SaveChangesAsync();
+
+            if (product.Rating == rate)
+                return false;
+
+            return true;
         }
     }
 }

@@ -59,9 +59,9 @@ namespace SingleExperience.WebAPI.Controllers
         }
 
         [HttpPut("{productId:int}/{rating:decimal}")]
-        public async Task Rating(int productId, decimal rating)
+        public async Task<bool> Rating(int productId, decimal rating)
         {
-            await product.Rating(productId, rating);
+            return await product.Rating(productId, rating);
         }
     }
 }

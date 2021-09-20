@@ -31,22 +31,25 @@ namespace SingleExperience.WebAPI.Controllers
         public async Task<UserModel> SignIn([FromBody] SignInModel signIn)
         {
             var userModel = await user.SignIn(signIn);
-            var now = DateTime.UtcNow;
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var secretKey = Encoding.ASCII.GetBytes(appSettings.SecretKey);
-            var tokenDiscription = new SecurityTokenDescriptor
+            if (userModel != null)
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                var now = DateTime.UtcNow;
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var secretKey = Encoding.ASCII.GetBytes(appSettings.SecretKey);
+                var tokenDiscription = new SecurityTokenDescriptor
                 {
-                    new Claim(ClaimTypes.Email, userModel.Email)
-                }),
-                Expires = now.AddDays(4),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
-            };
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.Email, userModel.Email)
+                    }),
+                    Expires = now.AddDays(4),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
+                };
 
-            var token = tokenHandler.CreateToken(tokenDiscription);
-            userModel.Token = tokenHandler.WriteToken(token);
-            userModel.TokenExpires = now.AddDays(4);
+                var token = tokenHandler.CreateToken(tokenDiscription);
+                userModel.Token = tokenHandler.WriteToken(token);
+                userModel.TokenExpires = now.AddDays(4);
+            }
 
             return userModel;
         }
